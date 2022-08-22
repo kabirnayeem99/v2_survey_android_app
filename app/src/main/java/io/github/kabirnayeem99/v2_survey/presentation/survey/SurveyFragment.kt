@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -15,8 +16,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.kabirnayeem99.v2_survey.R
 import io.github.kabirnayeem99.v2_survey.core.ktx.bounce
 import io.github.kabirnayeem99.v2_survey.databinding.FragmentSurveyBinding
+import io.github.kabirnayeem99.v2_survey.domain.entity.SurveyType
 import io.github.kabirnayeem99.v2_survey.presentation.common.DialogLoading
 import kotlinx.coroutines.launch
+import timber.log.Timber
+
 
 @AndroidEntryPoint
 class SurveyFragment : Fragment() {
@@ -67,11 +71,36 @@ class SurveyFragment : Fragment() {
                 lpiSurveyProgress.progress = progress
                 tvQuestion.text = selectedSurvey.question
                 tvQuestionNo.text = "Q. ${currentSurveyIndex + 1}"
+                setUpDropdown(selectedSurvey.type, selectedSurvey.options)
+                manageVisibility(uiState.selectedSurvey.type)
 
                 if (isSurveyAtEnd) btnNext.text = getString(R.string.label_finish)
                 if (!isSurveyAtEnd) btnNext.text = getString(R.string.label_next)
             }
         }
+    }
+
+    private fun manageVisibility(type: SurveyType) {
+        binding.apply {
+            if (type == SurveyType.CAMERA) {
+                ivCamera.visibility = View.VISIBLE
+                spDropdown.visibility = View.INVISIBLE
+            } else if (type == SurveyType.DROP_DOWN) {
+                spDropdown.visibility = View.VISIBLE
+                ivCamera.visibility = View.INVISIBLE
+            } else {
+                spDropdown.visibility = View.INVISIBLE
+                ivCamera.visibility = View.INVISIBLE
+            }
+        }
+    }
+
+    private fun setUpDropdown(type: SurveyType, items: List<String>) {
+        if (type != SurveyType.DROP_DOWN) return
+        Timber.d("Type is $type\nitems->$items")
+        val adapter =
+            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, items)
+        binding.spDropdown.adapter = adapter
     }
 
     private fun onNextButtonClick(view: View?) {

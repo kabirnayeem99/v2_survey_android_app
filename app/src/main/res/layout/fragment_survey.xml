@@ -46,6 +46,38 @@
         app:layout_constraintTop_toBottomOf="@id/lpi_survey_progress"
         tools:text="Question -> question?" />
 
+    <ImageView
+        android:id="@+id/iv_camera"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginHorizontal="@dimen/default_horizontal_margin"
+        android:layout_marginVertical="48dp"
+        android:contentDescription="@string/content_desc_take_selfie"
+        android:src="@drawable/ic_camera"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/btn_next"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_question"
+        app:layout_constraintVertical_bias="0"
+        app:tint="?android:colorAccent" />
+
+    <Spinner
+        android:id="@+id/sp_dropdown"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/default_horizontal_margin"
+        android:layout_marginVertical="48dp"
+        android:contentDescription="@string/content_desc_take_selfie"
+        android:spinnerMode="dropdown"
+        android:src="@drawable/ic_camera"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/btn_next"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_question"
+        app:layout_constraintVertical_bias="0"
+        app:tint="?android:colorAccent" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_next"
