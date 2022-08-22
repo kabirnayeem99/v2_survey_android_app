@@ -70,7 +70,6 @@
         android:layout_marginVertical="48dp"
         android:contentDescription="@string/content_desc_take_selfie"
         android:spinnerMode="dropdown"
-        android:src="@drawable/ic_camera"
         android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@id/btn_next"
         app:layout_constraintEnd_toEndOf="parent"
@@ -78,6 +77,70 @@
         app:layout_constraintTop_toBottomOf="@id/tv_question"
         app:layout_constraintVertical_bias="0"
         app:tint="?android:colorAccent" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/tiet_input"
+        style="@style/ThemeOverlay.Material3.TextInputEditText.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/default_horizontal_margin"
+        android:layout_marginVertical="48dp"
+        android:contentDescription="@string/content_desc_take_selfie"
+        android:inputType="textPostalAddress"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/btn_next"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_question"
+        app:layout_constraintVertical_bias="0" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/tiet_num_input"
+        style="@style/ThemeOverlay.Material3.TextInputEditText.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/default_horizontal_margin"
+        android:layout_marginVertical="48dp"
+        android:contentDescription="@string/content_desc_take_selfie"
+        android:inputType="number"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/btn_next"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_question"
+        app:layout_constraintVertical_bias="0"
+        tools:visibility="invisible" />
+
+    <LinearLayout
+        android:id="@+id/ll_checkbox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/default_horizontal_margin"
+        android:layout_marginVertical="48dp"
+        android:orientation="vertical"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/btn_next"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_question"
+        app:layout_constraintVertical_bias="0">
+
+    </LinearLayout>
+
+    <RadioGroup
+        android:id="@+id/rg_multiple_choice"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/default_horizontal_margin"
+        android:layout_marginVertical="48dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_next"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_question"
+        app:layout_constraintVertical_bias="0">
+
+    </RadioGroup>
+
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_next"
@@ -94,7 +157,7 @@
     <View
         android:id="@+id/v_button_guideline"
         android:layout_width="1dp"
-        android:layout_height="400dp"
+        android:layout_height="10dp"
         android:background="@color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

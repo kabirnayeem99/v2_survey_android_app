@@ -11,6 +11,7 @@
         <entry key="app/src/main/res/layout/fragment_onboarding.xml" value="0.125" />
         <entry key="app/src/main/res/layout/fragment_second.xml" value="0.10208333333333333" />
         <entry key="app/src/main/res/layout/fragment_survey.xml" value="0.165" />
+        <entry key="app/src/main/res/layout/layout_checkbox_item.xml" value="0.25104166666666666" />
         <entry key="app/src/main/res/layout/layout_dialog_loading.xml" value="0.25104166666666666" />
       </map>
     </option>

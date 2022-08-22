@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.RadioButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,6 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.kabirnayeem99.v2_survey.R
 import io.github.kabirnayeem99.v2_survey.core.ktx.bounce
 import io.github.kabirnayeem99.v2_survey.databinding.FragmentSurveyBinding
+import io.github.kabirnayeem99.v2_survey.databinding.LayoutCheckboxItemBinding
 import io.github.kabirnayeem99.v2_survey.domain.entity.SurveyType
 import io.github.kabirnayeem99.v2_survey.presentation.common.DialogLoading
 import kotlinx.coroutines.launch
@@ -71,8 +73,10 @@ class SurveyFragment : Fragment() {
                 lpiSurveyProgress.progress = progress
                 tvQuestion.text = selectedSurvey.question
                 tvQuestionNo.text = "Q. ${currentSurveyIndex + 1}"
-                setUpDropdown(selectedSurvey.type, selectedSurvey.options)
                 manageVisibility(uiState.selectedSurvey.type)
+                setUpDropdown(selectedSurvey.type, selectedSurvey.options)
+                setUpCheckbox(selectedSurvey.type, selectedSurvey.options)
+                setUpMultipleChoice(selectedSurvey.type, selectedSurvey.options)
 
                 if (isSurveyAtEnd) btnNext.text = getString(R.string.label_finish)
                 if (!isSurveyAtEnd) btnNext.text = getString(R.string.label_next)
@@ -82,25 +86,112 @@ class SurveyFragment : Fragment() {
 
     private fun manageVisibility(type: SurveyType) {
         binding.apply {
-            if (type == SurveyType.CAMERA) {
-                ivCamera.visibility = View.VISIBLE
-                spDropdown.visibility = View.INVISIBLE
-            } else if (type == SurveyType.DROP_DOWN) {
-                spDropdown.visibility = View.VISIBLE
-                ivCamera.visibility = View.INVISIBLE
-            } else {
-                spDropdown.visibility = View.INVISIBLE
-                ivCamera.visibility = View.INVISIBLE
+            when (type) {
+                SurveyType.CAMERA -> {
+                    ivCamera.visibility = View.VISIBLE
+                    spDropdown.visibility = View.INVISIBLE
+                    tietInput.visibility = View.INVISIBLE
+                    llCheckbox.visibility = View.INVISIBLE
+                    tietNumInput.visibility = View.INVISIBLE
+                    rgMultipleChoice.visibility = View.INVISIBLE
+                }
+                SurveyType.MULTIPLE_CHOICE -> {
+                    rgMultipleChoice.visibility = View.VISIBLE
+                    spDropdown.visibility = View.INVISIBLE
+                    tietInput.visibility = View.INVISIBLE
+                    ivCamera.visibility = View.INVISIBLE
+                    tietNumInput.visibility = View.INVISIBLE
+                    llCheckbox.visibility = View.INVISIBLE
+                }
+                SurveyType.DROP_DOWN -> {
+                    spDropdown.visibility = View.VISIBLE
+                    tietInput.visibility = View.INVISIBLE
+                    ivCamera.visibility = View.INVISIBLE
+                    tietNumInput.visibility = View.INVISIBLE
+                    llCheckbox.visibility = View.INVISIBLE
+                    rgMultipleChoice.visibility = View.INVISIBLE
+                }
+                SurveyType.TEXT_INPUT -> {
+                    tietInput.visibility = View.VISIBLE
+                    spDropdown.visibility = View.INVISIBLE
+                    ivCamera.visibility = View.INVISIBLE
+                    llCheckbox.visibility = View.INVISIBLE
+                    tietNumInput.visibility = View.INVISIBLE
+                    rgMultipleChoice.visibility = View.INVISIBLE
+                }
+                SurveyType.NUMBER_INPUT -> {
+                    tietNumInput.visibility = View.VISIBLE
+                    tietInput.visibility = View.INVISIBLE
+                    spDropdown.visibility = View.INVISIBLE
+                    ivCamera.visibility = View.INVISIBLE
+                    llCheckbox.visibility = View.INVISIBLE
+                    rgMultipleChoice.visibility = View.INVISIBLE
+                }
+                SurveyType.CHECKBOX -> {
+                    tietNumInput.visibility = View.INVISIBLE
+                    llCheckbox.visibility = View.VISIBLE
+                    tietInput.visibility = View.INVISIBLE
+                    spDropdown.visibility = View.INVISIBLE
+                    ivCamera.visibility = View.INVISIBLE
+                    rgMultipleChoice.visibility = View.INVISIBLE
+                }
+                else -> {
+                    spDropdown.visibility = View.INVISIBLE
+                    tietNumInput.visibility = View.INVISIBLE
+                    llCheckbox.visibility = View.INVISIBLE
+                    ivCamera.visibility = View.INVISIBLE
+                    tietInput.visibility = View.INVISIBLE
+                    rgMultipleChoice.visibility = View.INVISIBLE
+                }
             }
         }
     }
 
+    private fun setUpCheckbox(type: SurveyType, items: List<String>) {
+        binding.llCheckbox.removeAllViews()
+
+        if (type != SurveyType.CHECKBOX || items.isEmpty()) return
+        try {
+            items.forEach { option ->
+                LayoutCheckboxItemBinding
+                    .inflate(layoutInflater, null, false)
+                    .apply {
+                        mcbCheckbox.text = option
+                        binding.llCheckbox.addView(root)
+                    }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to add options -> ${e.localizedMessage}.")
+        }
+    }
+
+
+    private fun setUpMultipleChoice(type: SurveyType, items: List<String>) {
+        binding.rgMultipleChoice.removeAllViews()
+
+        if (type != SurveyType.MULTIPLE_CHOICE || items.isEmpty()) return
+
+        try {
+            items.forEach { option ->
+                Timber.d(option)
+                val btn = RadioButton(requireContext())
+                btn.id = View.generateViewId()
+                btn.text = option
+                btn.setOnClickListener {
+                    Timber.d("${(it as RadioButton).text} do do}")
+                }
+                binding.rgMultipleChoice.addView(btn)
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to add options -> ${e.localizedMessage}.")
+        }
+
+    }
+
     private fun setUpDropdown(type: SurveyType, items: List<String>) {
-        if (type != SurveyType.DROP_DOWN) return
-        Timber.d("Type is $type\nitems->$items")
-        val adapter =
+        if (type != SurveyType.DROP_DOWN || items.isEmpty()) return
+        binding.spDropdown.adapter =
             ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, items)
-        binding.spDropdown.adapter = adapter
     }
 
     private fun onNextButtonClick(view: View?) {
