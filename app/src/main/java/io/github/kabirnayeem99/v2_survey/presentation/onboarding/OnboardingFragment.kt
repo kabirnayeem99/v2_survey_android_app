@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.kabirnayeem99.v2_survey.R
+import io.github.kabirnayeem99.v2_survey.core.ktx.bounce
 import io.github.kabirnayeem99.v2_survey.databinding.FragmentOnboardingBinding
 
 @AndroidEntryPoint
@@ -32,12 +32,13 @@ class OnboardingFragment : Fragment() {
     }
 
     private fun setUpViews() {
-        binding.apply { btnAction.setOnClickListener(::onTakeTheSurveyButtonClick) }
+        binding.apply {
+            btnAction.setOnClickListener(::onTakeTheSurveyButtonClick)
+        }
     }
 
     private fun onTakeTheSurveyButtonClick(view: View?) {
-        val bounceAnimation = AnimationUtils.loadAnimation(requireContext(), R.anim.anim_bounce)
-        view?.startAnimation(bounceAnimation)
+        view?.bounce()
         navigateToSurveyScreen()
     }
 

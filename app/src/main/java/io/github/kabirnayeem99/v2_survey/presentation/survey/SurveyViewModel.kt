@@ -3,17 +3,20 @@ package io.github.kabirnayeem99.v2_survey.presentation.survey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.kabirnayeem99.v2_survey.domain.entity.mockSurveyList
+import io.github.kabirnayeem99.v2_survey.domain.useCase.GetSurvey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class SurveyViewModel @Inject constructor() : ViewModel() {
+class SurveyViewModel @Inject constructor(
+    private val getSurvey: GetSurvey
+) : ViewModel() {
     private val _uiState = MutableStateFlow(SurveyUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -22,13 +25,22 @@ class SurveyViewModel @Inject constructor() : ViewModel() {
         loadAllSurveysJob?.cancel()
         loadAllSurveysJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            delay(2000)
-            val surveys = mockSurveyList()
-            _uiState.update {
-                it.copy(
-                    isLoading = false,
-                    surveys = surveys,
-                    selectedSurvey = surveys[it.currentSurveyIndex],
+            getSurvey.invoke().collect { res ->
+                res.fold(
+                    onFailure = { e ->
+                        Timber.e(e, e.localizedMessage)
+                        _uiState.update { it.copy(isLoading = false) }
+                    },
+                    onSuccess = { data ->
+                        Timber.d("Data -> $data")
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                surveys = data,
+                                selectedSurvey = data[it.currentSurveyIndex],
+                            )
+                        }
+                    }
                 )
             }
         }
@@ -42,7 +54,7 @@ class SurveyViewModel @Inject constructor() : ViewModel() {
             if (uiState.value.currentSurveyIndex >= uiState.value.surveys.size) return@launch
 
             _uiState.update { it.copy(isLoading = true) }
-            delay(800)
+            delay(600)
 
             _uiState.update {
                 val index = it.currentSurveyIndex + 1
@@ -71,7 +83,7 @@ class SurveyViewModel @Inject constructor() : ViewModel() {
         loadPrevSurveyJob?.cancel()
         loadPrevSurveyJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            delay(1200)
+            delay(600)
 
             _uiState.update {
 

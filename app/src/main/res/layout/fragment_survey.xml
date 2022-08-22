@@ -19,6 +19,20 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:progress="90" />
 
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_question_no"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/default_horizontal_margin"
+        android:layout_marginTop="30dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lpi_survey_progress"
+        tools:text="Q. 1" />
+
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tv_question"
         android:layout_width="0dp"
@@ -31,6 +45,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/lpi_survey_progress"
         tools:text="Question -> question?" />
+
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_next"

@@ -3,8 +3,8 @@
     android:interpolator="@android:anim/bounce_interpolator">
     <scale
         android:duration="@integer/material_motion_duration_medium_1"
-        android:fromXScale="0.8"
-        android:fromYScale="0.8"
+        android:fromXScale="0.92"
+        android:fromYScale="0.92"
         android:toXScale="1.0"
         android:toYScale="1.0" />
 </set>
