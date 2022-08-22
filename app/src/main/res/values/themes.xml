@@ -1,0 +1,13 @@
+<resources>
+
+    <style name="Base.Theme.V2_Survey" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimaryDark">?android:colorPrimary</item>
+        <item name="android:statusBarColor">?android:colorPrimary</item>
+
+    </style>
+
+    <style name="Theme.V2_Survey" parent="Base.Theme.V2_Survey">
+        <item name="colorPrimaryDark">?android:colorPrimary</item>
+        <item name="android:statusBarColor">?android:colorPrimary</item>
+    </style>
+</resources>

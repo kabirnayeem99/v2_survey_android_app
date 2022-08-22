@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="default_horizontal_margin">24dp</dimen>
+</resources>

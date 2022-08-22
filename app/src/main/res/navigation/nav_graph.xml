@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/OnboardingFragment">
+
+    <fragment
+        android:id="@+id/OnboardingFragment"
+        android:name="io.github.kabirnayeem99.v2_survey.presentation.onboarding.OnboardingFragment"
+        android:label="@string/label_onboarding_fragment"
+        tools:layout="@layout/fragment_onboarding">
+
+        <action
+            android:id="@+id/action_OnboardingFragment_to_surveyFragment"
+            app:destination="@id/surveyFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/surveyFragment"
+        android:name="io.github.kabirnayeem99.v2_survey.presentation.survey.SurveyFragment"
+        android:label="SurveyFragment"
+        tools:layout="@layout/fragment_survey" />
+
+
+</navigation>
