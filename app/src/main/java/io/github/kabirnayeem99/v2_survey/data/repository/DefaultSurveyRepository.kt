@@ -3,6 +3,7 @@ package io.github.kabirnayeem99.v2_survey.data.repository
 import io.github.kabirnayeem99.v2_survey.data.dataSource.SurveyLocalDataSource
 import io.github.kabirnayeem99.v2_survey.data.dataSource.SurveyRemoteDataSource
 import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurvey
+import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurveyCluster
 import io.github.kabirnayeem99.v2_survey.domain.entity.Survey
 import io.github.kabirnayeem99.v2_survey.domain.repository.SurveyRepository
 import kotlinx.coroutines.Dispatchers
@@ -17,16 +18,14 @@ class DefaultSurveyRepository
 @Inject constructor(
     private val remoteDataSource: SurveyRemoteDataSource,
     private val localDataSource: SurveyLocalDataSource,
-) :
-    SurveyRepository {
+) : SurveyRepository {
 
     override suspend fun getSurveyList(): Flow<Result<List<Survey>>> {
         return flow {
             remoteDataSource.getSurveyList()
-                .also { surveyList ->
-                    emit(Result.success(surveyList))
-                }
+                .also { surveyList -> emit(Result.success(surveyList)) }
         }.catch { e ->
+            Timber.e(e, "Failed to get survey list from server -> ${e.localizedMessage}")
             emit(Result.failure(e))
         }.flowOn(Dispatchers.IO)
     }
@@ -36,7 +35,17 @@ class DefaultSurveyRepository
             localDataSource.saveAnswers(id, answers)
             Result.success(id)
         } catch (e: Exception) {
-            Timber.e(e)
+            Timber.e(e, "Failed to save survey for $id -> ${e.localizedMessage}")
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getPreviouslyAnsweredSurveyAnswers(): Result<List<AnsweredSurveyCluster>> {
+        return try {
+            val clusters = localDataSource.getPreviouslyAnsweredSurveyAsCluster()
+            Result.success(clusters)
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to get survey answers -> ${e.localizedMessage}")
             Result.failure(e)
         }
     }

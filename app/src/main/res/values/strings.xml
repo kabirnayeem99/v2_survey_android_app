@@ -55,4 +55,5 @@
     <string name="rationale_camera_permission">Please grant permission to allow us to get image while needed</string>
     <string name="rationale_ask_ok">Allow</string>
     <string name="rationale_ask_cancel">Cancel</string>
+    <string name="label_previous_answers">Previous Answers</string>
 </resources>

@@ -12,7 +12,7 @@ interface AnsweredSurveyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAnsweredSurvey(surveys: List<AnsweredSurveyEntity>)
 
-    @Query("SELECT * FROM answered_survey_entity WHERE id=:id")
-    suspend fun getAnsweredSurveyById(id: Long): List<AnsweredSurveyEntity>
+    @Query("SELECT * FROM answered_survey_entity WHERE surveyId=:surveyId")
+    suspend fun getAnsweredSurveyById(surveyId: Long): List<AnsweredSurveyEntity>
 
 }

@@ -344,6 +344,7 @@ class SurveyFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        loading.dismiss()
         _binding = null
     }
 }
