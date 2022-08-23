@@ -20,6 +20,7 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.kabirnayeem99.v2_survey.R
 import io.github.kabirnayeem99.v2_survey.core.ktx.bounce
+import io.github.kabirnayeem99.v2_survey.core.ktx.showMessage
 import io.github.kabirnayeem99.v2_survey.core.utility.fileFromContentUri
 import io.github.kabirnayeem99.v2_survey.databinding.FragmentSurveyBinding
 import io.github.kabirnayeem99.v2_survey.databinding.LayoutCheckboxItemBinding
@@ -99,6 +100,12 @@ class SurveyFragment : Fragment() {
                 if (!isSurveyAtEnd) btnNext.text = getString(R.string.label_next)
 
                 if (isAnswerSaved) navController.navigateUp()
+
+                userMessages.firstOrNull()?.let { message ->
+                    showMessage(message) {
+                        viewModel.userMessageShown(it.id)
+                    }
+                }
             }
         }
     }
@@ -160,16 +167,21 @@ class SurveyFragment : Fragment() {
 
     private val startForResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            if (uri != null) {
-                try {
-                    binding.ivCamera.setImageURI(uri)
-                    val file = fileFromContentUri(requireContext(), uri)
-                    viewModel.answerQuestion(file)
-                } catch (e: Exception) {
-                    viewModel.makeUserMessage(exception = e)
+            try {
+                if (uri != null) {
+                    try {
+                        binding.ivCamera.setImageURI(uri)
+                        val file = fileFromContentUri(requireContext(), uri)
+                        viewModel.answerQuestion(file)
+                    } catch (e: Exception) {
+                        viewModel.makeUserMessage(exception = e)
+                    }
+                } else {
+                    Timber.e("Failed to take image")
                 }
-            } else {
-                Timber.e("Failed to take image")
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to pick image -> ${e.localizedMessage}")
+                viewModel.makeUserMessage(exception = e)
             }
         }
 
@@ -184,36 +196,42 @@ class SurveyFragment : Fragment() {
     }
 
     private fun setUpCamera(type: SurveyType, selectedAnswer: AnsweredSurvey?) {
-        if (type != SurveyType.CAMERA) return
+        try {
+            if (type != SurveyType.CAMERA) return
 
-        if (viewModel.isCurrentSurveyAnswerRequired()) {
-            val icCameraDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.ic_camera)
-            binding.ivCamera.setImageDrawable(icCameraDrawable)
+            if (viewModel.isCurrentSurveyAnswerRequired()) {
+                val icCameraDrawable =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_camera)
+                binding.ivCamera.setImageDrawable(icCameraDrawable)
+            }
+
+            val hasCameraPermission = EasyPermissions
+                .hasPermissions(requireContext(), android.Manifest.permission.CAMERA)
+
+            if (!hasCameraPermission) {
+                (activity as ContainerActivity).askForCameraPermission()
+                return
+            }
+
+            if (selectedAnswer?.answerImage != null)
+                binding.ivCamera.setImageURI(selectedAnswer.answerImage.toUri())
+
+            binding.ivCamera.setOnClickListener { startForResult.launch("image/*") }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to set up camera -> ${e.localizedMessage}")
+            viewModel.makeUserMessage(exception = e)
         }
-
-        val hasCameraPermission = EasyPermissions
-            .hasPermissions(requireContext(), android.Manifest.permission.CAMERA)
-
-        if (!hasCameraPermission) {
-            (activity as ContainerActivity).askForCameraPermission()
-            return
-        }
-
-        if (selectedAnswer?.answerImage != null)
-            binding.ivCamera.setImageURI(selectedAnswer.answerImage.toUri())
-
-        binding.ivCamera.setOnClickListener { startForResult.launch("image/*") }
     }
 
 
     private fun setUpCheckbox(type: SurveyType, items: List<String>) {
-        binding.llCheckbox.removeAllViews()
-
-        if (type != SurveyType.CHECKBOX || items.isEmpty()) return
-
-        val answer = viewModel.uiState.value.selectedAnswer?.multipleChoiceAnswer
-
         try {
+            binding.llCheckbox.removeAllViews()
+
+            if (type != SurveyType.CHECKBOX || items.isEmpty()) return
+
+            val answer = viewModel.uiState.value.selectedAnswer?.multipleChoiceAnswer
+
             items.forEachIndexed { index, option ->
                 LayoutCheckboxItemBinding
                     .inflate(layoutInflater, null, false)
@@ -297,44 +315,69 @@ class SurveyFragment : Fragment() {
     }
 
     private fun getAnswerOfMultipleChoiceSurvey(selectedSurvey: Survey): Boolean {
-        val answer = selectedSurvey.options[binding.rgMultipleChoice.checkedRadioButtonId]
-        viewModel.answerQuestion(answer)
-        return true
+        try {
+            val answer = selectedSurvey.options[binding.rgMultipleChoice.checkedRadioButtonId]
+            viewModel.answerQuestion(answer)
+            return true
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to get answer of multiple choice survey -> ${e.localizedMessage}")
+            viewModel.makeUserMessage(exception = e)
+            return false
+        }
     }
 
     private fun getAnswerForNumberInputSurvey(): Boolean {
-        val answer = binding.tietNumInput.text.toString()
-        if (answer.isBlank()) return false
-        viewModel.answerQuestion(answer)
-        return true
+        try {
+            val answer = binding.tietNumInput.text.toString()
+            if (answer.isBlank()) return false
+            viewModel.answerQuestion(answer)
+            return true
+        } catch (e: Exception) {
+            viewModel.makeUserMessage(exception = e)
+            return false
+        }
     }
 
     private fun getAnswerOfTextInputSurvey(): Boolean {
-        val answer = binding.tietInput.text.toString()
-        if (answer.isBlank()) return false
-        viewModel.answerQuestion(answer)
-        return true
+        try {
+            val answer = binding.tietInput.text.toString()
+            if (answer.isBlank()) return false
+            viewModel.answerQuestion(answer)
+            return true
+        } catch (e: Exception) {
+            viewModel.makeUserMessage(exception = e)
+            return false
+        }
     }
 
     private fun getAnswerOfDropDownSurvey(): Boolean {
-        val dropDownAnswer = binding.spDropdown.selectedItem.toString()
-        if (dropDownAnswer.isEmpty()) return false
-        viewModel.answerQuestion(dropDownAnswer)
-        return true
+        try {
+            val dropDownAnswer = binding.spDropdown.selectedItem.toString()
+            if (dropDownAnswer.isEmpty()) return false
+            viewModel.answerQuestion(dropDownAnswer)
+            return true
+        } catch (e: Exception) {
+            viewModel.makeUserMessage(exception = e)
+            return false
+        }
     }
 
     private fun getAnswerOfCheckboxes(selectedSurvey: Survey): Boolean {
-        val answers = mutableListOf<String>()
+        try {
+            val answers = mutableListOf<String>()
 
-        binding.llCheckbox.children.forEachIndexed { index, view ->
-            if (view is MaterialCheckBox && view.isChecked)
-                answers.add(selectedSurvey.options[index])
+            binding.llCheckbox.children.forEachIndexed { index, view ->
+                if (view is MaterialCheckBox && view.isChecked)
+                    answers.add(selectedSurvey.options[index])
+            }
+
+            if (answers.isEmpty()) return false
+            viewModel.answerQuestion(answers)
+
+            return true
+        } catch (e: Exception) {
+            return false
         }
-
-        if (answers.isEmpty()) return false
-        viewModel.answerQuestion(answers)
-
-        return true
     }
 
     private fun onPreviousButtonClick(view: View?) {
