@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -19,6 +20,7 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.kabirnayeem99.v2_survey.R
 import io.github.kabirnayeem99.v2_survey.core.ktx.bounce
+import io.github.kabirnayeem99.v2_survey.core.utility.fileFromContentUri
 import io.github.kabirnayeem99.v2_survey.databinding.FragmentSurveyBinding
 import io.github.kabirnayeem99.v2_survey.databinding.LayoutCheckboxItemBinding
 import io.github.kabirnayeem99.v2_survey.domain.entity.SurveyType
@@ -167,6 +169,8 @@ class SurveyFragment : Fragment() {
             if (uri != null) {
                 try {
                     binding.ivCamera.setImageURI(uri)
+                    val file = fileFromContentUri(requireContext(), uri)
+                    viewModel.answerQuestion(file)
                 } catch (e: Exception) {
                     Timber.e(e, "Failed to set image uri -> ${e.localizedMessage}")
                 }
@@ -178,6 +182,14 @@ class SurveyFragment : Fragment() {
 
     private fun setUpCamera(type: SurveyType) {
         if (type != SurveyType.CAMERA) return
+
+        if (viewModel.isCurrentSurveyAnswerRequired())
+            binding.ivCamera.setImageDrawable(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.ic_camera
+                )
+            )
         val hasCameraPermission = EasyPermissions
             .hasPermissions(requireContext(), android.Manifest.permission.CAMERA)
         if (!hasCameraPermission) {
@@ -319,7 +331,7 @@ class SurveyFragment : Fragment() {
         }
 
         if (selectedSurvey.type == SurveyType.CAMERA) {
-
+            return !viewModel.isCurrentSurveyAnswerRequired()
         }
 
         return false

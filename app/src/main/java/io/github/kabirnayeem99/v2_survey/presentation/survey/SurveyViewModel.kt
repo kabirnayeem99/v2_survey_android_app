@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -123,12 +124,14 @@ class SurveyViewModel @Inject constructor(
 
                 val ansText = if (ans is String) ans else null
                 val ansList = if (ans is List<*>) ans else null
+                val ansFile = if (ans is File) ans else null
 
                 val answer = AnsweredSurvey(
                     id = it.selectedSurvey.id,
                     question = it.selectedSurvey.question,
                     answerText = ansText,
-                    multipleChoiceAnswer = ansList?.map { a -> a.toString() }
+                    multipleChoiceAnswer = ansList?.map { a -> a.toString() },
+                    answerImage = ansFile
                 )
                 currentList.add(answer)
                 Timber.d("current answer list -> $currentList")
