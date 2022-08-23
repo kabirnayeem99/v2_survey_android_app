@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter
 import android.widget.RadioButton
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -23,6 +24,7 @@ import io.github.kabirnayeem99.v2_survey.core.ktx.showMessage
 import io.github.kabirnayeem99.v2_survey.core.utility.fileFromContentUri
 import io.github.kabirnayeem99.v2_survey.databinding.FragmentSurveyBinding
 import io.github.kabirnayeem99.v2_survey.databinding.LayoutCheckboxItemBinding
+import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurvey
 import io.github.kabirnayeem99.v2_survey.domain.entity.Survey
 import io.github.kabirnayeem99.v2_survey.domain.entity.SurveyType
 import io.github.kabirnayeem99.v2_survey.presentation.ContainerActivity
@@ -90,7 +92,9 @@ class SurveyFragment : Fragment() {
                 setUpDropdown(selectedSurvey.type, selectedSurvey.options)
                 setUpCheckbox(selectedSurvey.type, selectedSurvey.options)
                 setUpMultipleChoice(selectedSurvey.type, selectedSurvey.options)
-                setUpCamera(selectedSurvey.type)
+                setUpCamera(selectedSurvey.type, selectedAnswer)
+                setUpNumberInput(selectedSurvey.type, selectedAnswer)
+                setUpTextInput(selectedSurvey.type, selectedAnswer)
 
                 if (isSurveyAtEnd) btnNext.text = getString(R.string.label_finish)
                 if (!isSurveyAtEnd) btnNext.text = getString(R.string.label_next)
@@ -170,8 +174,17 @@ class SurveyFragment : Fragment() {
             }
         }
 
+    private fun setUpNumberInput(type: SurveyType, answer: AnsweredSurvey?) {
+        if (type != SurveyType.NUMBER_INPUT) return
+        binding.tietNumInput.setText(answer?.answerText ?: "")
+    }
 
-    private fun setUpCamera(type: SurveyType) {
+    private fun setUpTextInput(type: SurveyType, answer: AnsweredSurvey?) {
+        if (type != SurveyType.TEXT_INPUT) return
+        binding.tietInput.setText(answer?.answerText ?: "")
+    }
+
+    private fun setUpCamera(type: SurveyType, selectedAnswer: AnsweredSurvey?) {
         if (type != SurveyType.CAMERA) return
 
         if (viewModel.isCurrentSurveyAnswerRequired()) {
@@ -187,6 +200,9 @@ class SurveyFragment : Fragment() {
             return
         }
 
+        if (selectedAnswer?.answerImage != null)
+            binding.ivCamera.setImageURI(selectedAnswer.answerImage.toUri())
+
         binding.ivCamera.setOnClickListener { startForResult.launch("image/*") }
     }
 
@@ -195,13 +211,18 @@ class SurveyFragment : Fragment() {
         binding.llCheckbox.removeAllViews()
 
         if (type != SurveyType.CHECKBOX || items.isEmpty()) return
+
+        val answer = viewModel.uiState.value.selectedAnswer?.multipleChoiceAnswer
+
         try {
             items.forEachIndexed { index, option ->
                 LayoutCheckboxItemBinding
                     .inflate(layoutInflater, null, false)
                     .apply {
+                        val isChecked = answer?.contains(option) ?: false
                         mcbCheckbox.text = option
                         mcbCheckbox.id = index
+                        mcbCheckbox.isChecked = isChecked
                         binding.llCheckbox.addView(root)
                     }
             }
@@ -216,11 +237,17 @@ class SurveyFragment : Fragment() {
 
         if (type != SurveyType.MULTIPLE_CHOICE || items.isEmpty()) return
 
+        val answer = viewModel.uiState.value.selectedAnswer?.answerText
+        Timber.d("Multiple choice answer -> $answer")
+
         try {
             items.forEachIndexed { index, option ->
+                val isThisChecked = option == answer
+                Timber.d("Is $option checked -> $isThisChecked")
                 val btn = RadioButton(requireContext())
                 btn.id = index
                 btn.text = option
+                btn.isChecked = isThisChecked
                 binding.rgMultipleChoice.addView(btn)
             }
         } catch (e: Exception) {
@@ -229,10 +256,18 @@ class SurveyFragment : Fragment() {
     }
 
 
-    private fun setUpDropdown(type: SurveyType, items: List<String>) {
-        if (type != SurveyType.DROP_DOWN || items.isEmpty()) return
+    private fun setUpDropdown(type: SurveyType, options: List<String>) {
+        if (type != SurveyType.DROP_DOWN || options.isEmpty()) return
         binding.spDropdown.adapter =
-            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, items)
+            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, options)
+
+        val answer = viewModel.uiState.value.selectedAnswer
+        var selectedItem = -1
+        options.forEachIndexed { index, option ->
+            if (answer?.answerText == option) selectedItem = index
+        }
+
+        if (selectedItem >= 0) binding.spDropdown.setSelection(selectedItem)
     }
 
 
@@ -245,7 +280,6 @@ class SurveyFragment : Fragment() {
         if (canLoadNextQuestion) {
             if (viewModel.hasSurveyReachedEnd()) {
                 viewModel.submitSurveyAnswers()
-                showMessage("You are finished")
             } else viewModel.loadNextSurvey()
         } else showMessage("The answer is required.")
     }

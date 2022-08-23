@@ -21,6 +21,7 @@ class SurveyViewModel @Inject constructor(
     private val getSurveyList: GetSurveyList,
     private val saveSurveyList: SaveSurveyList,
 ) : ViewModel() {
+
     private val _uiState = MutableStateFlow(SurveyUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -38,10 +39,12 @@ class SurveyViewModel @Inject constructor(
 
             val doOnSuccess: (surveys: List<Survey>) -> Unit = { surveys ->
                 _uiState.update {
+                    val selectedSurvey = surveys[it.currentSurveyIndex]
                     it.copy(
                         isLoading = false,
                         surveys = surveys,
-                        selectedSurvey = surveys[it.currentSurveyIndex],
+                        selectedSurvey = selectedSurvey,
+                        selectedAnswer = findAnswerBasedOnId(selectedSurvey.id)
                     )
                 }
             }
@@ -69,11 +72,14 @@ class SurveyViewModel @Inject constructor(
                     val selectedSurvey = it.surveys[index]
 
                     stopLoading()
+
+
                     it.copy(
                         isSurveyAtEnd = hasReachedAtTheEnd(index, it),
                         currentSurveyIndex = index,
                         progress = progress,
-                        selectedSurvey = selectedSurvey
+                        selectedSurvey = selectedSurvey,
+                        selectedAnswer = findAnswerBasedOnId(selectedSurvey.id)
                     )
                 }
             }
@@ -100,6 +106,7 @@ class SurveyViewModel @Inject constructor(
                         progress = progress,
                         isSurveyAtEnd = hasReachedAtTheEnd(index, it),
                         selectedSurvey = selectedSurvey,
+                        selectedAnswer = findAnswerBasedOnId(selectedSurvey.id)
                     )
                 } else {
                     stopLoading()
@@ -151,6 +158,22 @@ class SurveyViewModel @Inject constructor(
     }
 
     /**
+     * Find the provided answer based on the question id
+     *
+     * @param id The id of the question that was answered
+     * @return The answer to the question with the given id. It may return null
+     * if the user has not answered the question yet
+     */
+    private fun findAnswerBasedOnId(id: Int): AnsweredSurvey? {
+        return try {
+            uiState.value.answers.find { a -> a.id == id }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to find answer based on id $id")
+            null
+        }
+    }
+
+    /**
      * Checks if the survey has reached at the end or not
      */
     fun hasSurveyReachedEnd() = uiState.value.isSurveyAtEnd
@@ -163,7 +186,7 @@ class SurveyViewModel @Inject constructor(
     fun isCurrentSurveyAnswerRequired(): Boolean {
         return try {
             val selectedSurvey = uiState.value.selectedSurvey
-            val answer = uiState.value.answers.find { a -> a.id == selectedSurvey.id }
+            val answer = findAnswerBasedOnId(selectedSurvey.id)
             answer == null
         } catch (e: Exception) {
             Timber.e(e, "Failed to determine if the current answer required or not.")

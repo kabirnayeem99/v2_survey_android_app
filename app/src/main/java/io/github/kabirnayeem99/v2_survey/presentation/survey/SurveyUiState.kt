@@ -30,4 +30,5 @@ data class SurveyUiState(
     val isSurveyAtEnd: Boolean = false,
     val progress: Int = 10,
     val isAnswerSaved: Boolean = false,
+    val selectedAnswer: AnsweredSurvey? = null
 )
