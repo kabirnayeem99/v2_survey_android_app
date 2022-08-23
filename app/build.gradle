@@ -64,6 +64,9 @@ dependencies {
     implementation "com.google.code.gson:gson:$gson_version"  // gson for json serialisation
     implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.9'
 
+    // easy_permission - for handling permission
+    implementation 'pub.devrel:easypermissions:3.0.0'
+
 
 }
 

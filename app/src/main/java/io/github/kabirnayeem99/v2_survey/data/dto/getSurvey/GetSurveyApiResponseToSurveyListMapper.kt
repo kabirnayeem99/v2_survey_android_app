@@ -19,7 +19,7 @@ fun GetSurveyApiResponseDto.toSurveyList(): List<Survey> {
                 o?.value ?: ""
             } ?: emptyList(),
             isRequired = i.required ?: false,
-            type = getSurveyType(i.type)
+            type = getSurveyType(i.type),
         )
     }
 }

@@ -8,12 +8,16 @@ import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.kabirnayeem99.v2_survey.R
 import io.github.kabirnayeem99.v2_survey.databinding.ActivityContainerBinding
+import io.github.kabirnayeem99.v2_survey.presentation.survey.RC_TAKE_PHOTO
+import pub.devrel.easypermissions.EasyPermissions
+import pub.devrel.easypermissions.PermissionRequest
 
 
 @AndroidEntryPoint
 class ContainerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityContainerBinding
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         configureUi()
@@ -29,6 +33,25 @@ class ContainerActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
+    }
+
+    fun askForCameraPermission() {
+        EasyPermissions.requestPermissions(
+            PermissionRequest.Builder(this, RC_TAKE_PHOTO, android.Manifest.permission.CAMERA)
+                .setRationale(R.string.rationale_camera_permission)
+                .setPositiveButtonText(R.string.rationale_ask_ok)
+                .setNegativeButtonText(R.string.rationale_ask_cancel)
+                .build()
+        )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
 

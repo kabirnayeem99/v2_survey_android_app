@@ -59,8 +59,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_question"
-        app:layout_constraintVertical_bias="0"
-        app:tint="?android:colorAccent" />
+        app:layout_constraintVertical_bias="0" />
 
     <Spinner
         android:id="@+id/sp_dropdown"

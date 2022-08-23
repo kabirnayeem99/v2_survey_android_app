@@ -13,6 +13,7 @@
         <entry key="app/src/main/res/layout/fragment_survey.xml" value="0.165" />
         <entry key="app/src/main/res/layout/layout_checkbox_item.xml" value="0.25104166666666666" />
         <entry key="app/src/main/res/layout/layout_dialog_loading.xml" value="0.25104166666666666" />
+        <entry key="app/src/main/res/xml/provider_paths.xml" value="0.13518518518518519" />
       </map>
     </option>
   </component>

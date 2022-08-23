@@ -24,13 +24,8 @@ fun mockSurvey(id: Int = 0): Survey {
         id = id,
         question = "Test test test test ${id + 1}?",
         isRequired = Random().nextBoolean(),
-        type = SurveyType.CHECKBOX,
-        options = listOf(
-            "Test",
-            "Test",
-            "Test",
-            "Test",
-        )
+        type = SurveyType.CAMERA,
+        options = emptyList(),
     )
 }
 
