@@ -7,6 +7,7 @@ import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurvey
 import io.github.kabirnayeem99.v2_survey.domain.entity.Survey
 import io.github.kabirnayeem99.v2_survey.domain.useCase.GetSurveyList
 import io.github.kabirnayeem99.v2_survey.domain.useCase.SaveSurveyList
+import io.github.kabirnayeem99.v2_survey.presentation.common.UserMessage
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,7 +34,7 @@ class SurveyViewModel @Inject constructor(
             startLoading()
 
             val doOnFailure: (e: Throwable) -> Unit = { e ->
-                Timber.e(e, e.localizedMessage)
+                makeUserMessage(exception = e)
                 stopLoading()
             }
 
@@ -150,7 +151,7 @@ class SurveyViewModel @Inject constructor(
                     _uiState.update { it.copy(isAnswerSaved = true) }
                 },
                 onFailure = { e ->
-                    Timber.e(e)
+                    makeUserMessage(exception = e)
                     _uiState.update { it.copy(isAnswerSaved = false) }
                 }
             )
@@ -168,7 +169,7 @@ class SurveyViewModel @Inject constructor(
         return try {
             uiState.value.answers.find { a -> a.id == id }
         } catch (e: Exception) {
-            Timber.e(e, "Failed to find answer based on id $id")
+            makeUserMessage(exception = e)
             null
         }
     }
@@ -189,7 +190,7 @@ class SurveyViewModel @Inject constructor(
             val answer = findAnswerBasedOnId(selectedSurvey.id)
             answer == null
         } catch (e: Exception) {
-            Timber.e(e, "Failed to determine if the current answer required or not.")
+            makeUserMessage(exception = e)
             false
         }
     }
@@ -236,5 +237,52 @@ class SurveyViewModel @Inject constructor(
      */
     private suspend fun hasReachedAtTheEnd(index: Int, state: SurveyUiState) =
         coroutineScope { index + 1 == state.surveys.size }
+
+    /**
+     * Makes a new user message with a unique id and add it to the list of user messages.
+     *
+     * @param messageText The text of the message to be sent.
+     * @return Nothing.
+     */
+    fun makeUserMessage(messageText: String? = null, exception: Throwable? = null) {
+
+        if (!messageText.isNullOrBlank()) {
+            viewModelScope.launch(Dispatchers.IO) {
+                _uiState.update {
+                    val messages = it.userMessages + UserMessage(
+                        id = UUID.randomUUID().mostSignificantBits,
+                        message = messageText
+                    )
+                    it.copy(userMessages = messages)
+                }
+            }
+        }
+
+        if (exception != null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                _uiState.update {
+                    val messages = it.userMessages + UserMessage(
+                        id = UUID.randomUUID().mostSignificantBits,
+                        message = exception.localizedMessage ?: "Something went wrong."
+                    )
+                    it.copy(userMessages = messages)
+                }
+            }
+        }
+    }
+
+    /**
+     * Removes the message after it is shown with the given id from the user messages
+     *
+     * @param messageId The id of the message that was shown.
+     */
+    fun userMessageShown(messageId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update { currentUiState ->
+                val messages = currentUiState.userMessages.filterNot { it.id == messageId }
+                currentUiState.copy(userMessages = messages)
+            }
+        }
+    }
 
 }

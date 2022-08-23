@@ -3,6 +3,7 @@ package io.github.kabirnayeem99.v2_survey.presentation.survey
 import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurvey
 import io.github.kabirnayeem99.v2_survey.domain.entity.Survey
 import io.github.kabirnayeem99.v2_survey.domain.entity.SurveyType
+import io.github.kabirnayeem99.v2_survey.presentation.common.UserMessage
 
 /**
  * @property {Boolean} isLoading - This is a boolean property that indicates whether the app is loading
@@ -30,5 +31,6 @@ data class SurveyUiState(
     val isSurveyAtEnd: Boolean = false,
     val progress: Int = 10,
     val isAnswerSaved: Boolean = false,
-    val selectedAnswer: AnsweredSurvey? = null
+    val selectedAnswer: AnsweredSurvey? = null,
+    val userMessages: List<UserMessage> = emptyList(),
 )

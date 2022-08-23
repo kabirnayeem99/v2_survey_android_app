@@ -20,7 +20,6 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.kabirnayeem99.v2_survey.R
 import io.github.kabirnayeem99.v2_survey.core.ktx.bounce
-import io.github.kabirnayeem99.v2_survey.core.ktx.showMessage
 import io.github.kabirnayeem99.v2_survey.core.utility.fileFromContentUri
 import io.github.kabirnayeem99.v2_survey.databinding.FragmentSurveyBinding
 import io.github.kabirnayeem99.v2_survey.databinding.LayoutCheckboxItemBinding
@@ -167,7 +166,7 @@ class SurveyFragment : Fragment() {
                     val file = fileFromContentUri(requireContext(), uri)
                     viewModel.answerQuestion(file)
                 } catch (e: Exception) {
-                    Timber.e(e, "Failed to set image uri -> ${e.localizedMessage}")
+                    viewModel.makeUserMessage(exception = e)
                 }
             } else {
                 Timber.e("Failed to take image")
@@ -227,7 +226,7 @@ class SurveyFragment : Fragment() {
                     }
             }
         } catch (e: Exception) {
-            Timber.e(e, "Failed to add options -> ${e.localizedMessage}.")
+            viewModel.makeUserMessage(exception = e)
         }
     }
 
@@ -238,7 +237,6 @@ class SurveyFragment : Fragment() {
         if (type != SurveyType.MULTIPLE_CHOICE || items.isEmpty()) return
 
         val answer = viewModel.uiState.value.selectedAnswer?.answerText
-        Timber.d("Multiple choice answer -> $answer")
 
         try {
             items.forEachIndexed { index, option ->
@@ -251,7 +249,7 @@ class SurveyFragment : Fragment() {
                 binding.rgMultipleChoice.addView(btn)
             }
         } catch (e: Exception) {
-            Timber.e(e, "Failed to add options -> ${e.localizedMessage}.")
+            viewModel.makeUserMessage(exception = e)
         }
     }
 
@@ -281,7 +279,8 @@ class SurveyFragment : Fragment() {
             if (viewModel.hasSurveyReachedEnd()) {
                 viewModel.submitSurveyAnswers()
             } else viewModel.loadNextSurvey()
-        } else showMessage("The answer is required.")
+        } else viewModel.makeUserMessage(messageText = "The answer is required.")
+
     }
 
     private fun submitAndCheckIfAnswerSubmitted(): Boolean {
