@@ -1,6 +1,7 @@
 package io.github.kabirnayeem99.v2_survey.data.repository
 
 import io.github.kabirnayeem99.v2_survey.data.dataSource.SurveyRemoteDataSource
+import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurvey
 import io.github.kabirnayeem99.v2_survey.domain.entity.Survey
 import io.github.kabirnayeem99.v2_survey.domain.entity.mockSurveyList
 import io.github.kabirnayeem99.v2_survey.domain.repository.SurveyRepository
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import timber.log.Timber
 import javax.inject.Inject
 
 class DefaultSurveyRepository
@@ -25,5 +27,10 @@ class DefaultSurveyRepository
         }.catch { e ->
             emit(Result.failure(e))
         }.flowOn(Dispatchers.IO)
+    }
+
+    override suspend fun saveSurvey(id: Long, answers: List<AnsweredSurvey>): Result<Long> {
+        Timber.d(answers.toString())
+        return Result.success(id)
     }
 }

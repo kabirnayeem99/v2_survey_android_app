@@ -5,7 +5,7 @@ import io.github.kabirnayeem99.v2_survey.domain.repository.SurveyRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetSurvey @Inject constructor(
+class GetSurveyList @Inject constructor(
     private val repository: SurveyRepository
 ) {
 

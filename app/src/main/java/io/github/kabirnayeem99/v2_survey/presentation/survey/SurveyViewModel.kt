@@ -5,21 +5,21 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurvey
 import io.github.kabirnayeem99.v2_survey.domain.entity.Survey
-import io.github.kabirnayeem99.v2_survey.domain.useCase.GetSurvey
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import io.github.kabirnayeem99.v2_survey.domain.useCase.GetSurveyList
+import io.github.kabirnayeem99.v2_survey.domain.useCase.SaveSurveyList
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class SurveyViewModel @Inject constructor(
-    private val getSurvey: GetSurvey
+    private val getSurveyList: GetSurveyList,
+    private val saveSurveyList: SaveSurveyList,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SurveyUiState())
     val uiState = _uiState.asStateFlow()
@@ -28,7 +28,7 @@ class SurveyViewModel @Inject constructor(
     fun loadAllSurveys() {
         loadAllSurveysJob?.cancel()
 
-        loadAllSurveysJob = viewModelScope.launch {
+        loadAllSurveysJob = viewModelScope.launch(Dispatchers.IO) {
             startLoading()
 
             val doOnFailure: (e: Throwable) -> Unit = { e ->
@@ -46,7 +46,7 @@ class SurveyViewModel @Inject constructor(
                 }
             }
 
-            getSurvey()
+            getSurveyList()
                 .collect { res -> res.fold(onFailure = doOnFailure, onSuccess = doOnSuccess) }
         }
     }
@@ -54,17 +54,14 @@ class SurveyViewModel @Inject constructor(
     private var loadNextSurveyJob: Job? = null
     fun loadNextSurvey() {
         loadNextSurveyJob?.cancel()
-        loadNextSurveyJob = viewModelScope.launch {
+        loadNextSurveyJob = viewModelScope.launch(Dispatchers.IO) {
 
-            startLoading()
-
-            delay(600)
+            showLoadingForAShortPeriod()
 
             _uiState.update {
                 val index = it.currentSurveyIndex + 1
 
                 if (index == it.surveys.size) {
-                    stopLoading()
                     it.copy(isSurveyAtEnd = hasReachedAtTheEnd(index, it))
                 } else {
 
@@ -86,9 +83,8 @@ class SurveyViewModel @Inject constructor(
     private var loadPrevSurveyJob: Job? = null
     fun loadPrevSurvey() {
         loadPrevSurveyJob?.cancel()
-        loadPrevSurveyJob = viewModelScope.launch {
-            startLoading()
-            delay(600)
+        loadPrevSurveyJob = viewModelScope.launch(Dispatchers.IO) {
+            showLoadingForAShortPeriod()
 
             _uiState.update {
 
@@ -98,8 +94,6 @@ class SurveyViewModel @Inject constructor(
 
                     val progress = calculateProgress(index, it)
                     val selectedSurvey = it.surveys[index]
-
-                    stopLoading()
 
                     it.copy(
                         currentSurveyIndex = index,
@@ -122,23 +116,42 @@ class SurveyViewModel @Inject constructor(
             _uiState.update {
                 val currentList = it.answers.toMutableList()
 
-                val ansText = if (ans is String) ans else null
                 val ansList = if (ans is List<*>) ans else null
-                val ansFile = if (ans is File) ans else null
 
                 val answer = AnsweredSurvey(
                     id = it.selectedSurvey.id,
                     question = it.selectedSurvey.question,
-                    answerText = ansText,
+                    answerText = if (ans is String) ans else null,
                     multipleChoiceAnswer = ansList?.map { a -> a.toString() },
-                    answerImage = ansFile
+                    answerImage = if (ans is File) ans else null
                 )
                 currentList.add(answer)
-                Timber.d("current answer list -> $currentList")
+
                 it.copy(answers = currentList.toList())
             }
         }
     }
+
+    private var submitSurveyAnswersJob: Job? = null
+    fun submitSurveyAnswers() {
+        submitSurveyAnswersJob?.cancel()
+        submitSurveyAnswersJob = viewModelScope.launch {
+            showLoadingForAShortPeriod(1200)
+            saveSurveyList(Date().time, uiState.value.answers).fold(
+                onSuccess = { data ->
+                    Timber.d(data.toString())
+                },
+                onFailure = { e ->
+                    Timber.e(e)
+                }
+            )
+        }
+    }
+
+    /**
+     * Checks if the survey has reached at the end or not
+     */
+    fun hasSurveyReachedEnd() = uiState.value.isSurveyAtEnd
 
     /**
      * If the current survey is not in the list of answers, then it is required
@@ -148,7 +161,7 @@ class SurveyViewModel @Inject constructor(
     fun isCurrentSurveyAnswerRequired(): Boolean {
         return try {
             val selectedSurvey = uiState.value.selectedSurvey
-            val answer = uiState.value.answers.find { it.id == selectedSurvey.id }
+            val answer = uiState.value.answers.find { a -> a.id == selectedSurvey.id }
             answer == null
         } catch (e: Exception) {
             Timber.e(e, "Failed to determine if the current answer required or not.")
@@ -172,16 +185,23 @@ class SurveyViewModel @Inject constructor(
     }
 
     /**
+     * Show loading for short period of time
+     */
+    private suspend fun showLoadingForAShortPeriod(time: Long = 600L) {
+        startLoading()
+        delay(time)
+        stopLoading()
+    }
+
+    /**
      * Takes the index of the current survey and the current state of the UI, and returns the
      * progress of the survey
      *
      * @param index The index of the survey in the list of surveys.
      * @param state The current state of the UI.
      */
-    private fun calculateProgress(
-        index: Int,
-        state: SurveyUiState
-    ) = ((index.toDouble() / state.surveys.size.toDouble()) * 100).toInt() + 10
+    private suspend fun calculateProgress(index: Int, state: SurveyUiState) =
+        coroutineScope { ((index.toDouble() / state.surveys.size.toDouble()) * 100).toInt() + 10 }
 
     /**
      * Checks if the index of the current survey is the last one in the list
@@ -189,7 +209,7 @@ class SurveyViewModel @Inject constructor(
      * @param index The index of the current survey in the list of surveys.
      * @param state The current state of the UI.
      */
-    private fun hasReachedAtTheEnd(index: Int, state: SurveyUiState) =
-        index + 1 == state.surveys.size
+    private suspend fun hasReachedAtTheEnd(index: Int, state: SurveyUiState) =
+        coroutineScope { index + 1 == state.surveys.size }
 
 }

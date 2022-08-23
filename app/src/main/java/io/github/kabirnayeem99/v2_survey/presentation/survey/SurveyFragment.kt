@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.RadioButton
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
@@ -20,9 +19,11 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.kabirnayeem99.v2_survey.R
 import io.github.kabirnayeem99.v2_survey.core.ktx.bounce
+import io.github.kabirnayeem99.v2_survey.core.ktx.showMessage
 import io.github.kabirnayeem99.v2_survey.core.utility.fileFromContentUri
 import io.github.kabirnayeem99.v2_survey.databinding.FragmentSurveyBinding
 import io.github.kabirnayeem99.v2_survey.databinding.LayoutCheckboxItemBinding
+import io.github.kabirnayeem99.v2_survey.domain.entity.Survey
 import io.github.kabirnayeem99.v2_survey.domain.entity.SurveyType
 import io.github.kabirnayeem99.v2_survey.presentation.ContainerActivity
 import io.github.kabirnayeem99.v2_survey.presentation.common.DialogLoading
@@ -75,13 +76,6 @@ class SurveyFragment : Fragment() {
         }
     }
 
-    /**
-     * Takes a `SurveyUiState` object as a parameter and updates the UI based on the state of the
-     * object
-     *
-     * @param uiState SurveyUiState - This is the data class that holds all the data that is required
-     * to render the UI.
-     */
     private fun handleUiState(uiState: SurveyUiState) {
         uiState.apply {
             if (isLoading) loading.show() else loading.dismiss()
@@ -91,7 +85,7 @@ class SurveyFragment : Fragment() {
                 tvQuestion.text = selectedSurvey.question
                 tvQuestionNo.text = "Q. ${currentSurveyIndex + 1}"
 
-                manageVisibility(uiState.selectedSurvey.type)
+                manageVisibilityBasedOnType(uiState.selectedSurvey.type)
 
                 setUpDropdown(selectedSurvey.type, selectedSurvey.options)
                 setUpCheckbox(selectedSurvey.type, selectedSurvey.options)
@@ -104,12 +98,7 @@ class SurveyFragment : Fragment() {
         }
     }
 
-    /**
-     * Manages the visibility of the different views in the layout.
-     *
-     * @param type The type of survey question.
-     */
-    private fun manageVisibility(type: SurveyType) {
+    private fun manageVisibilityBasedOnType(type: SurveyType) {
         binding.apply {
             when (type) {
                 SurveyType.CAMERA -> {
@@ -183,31 +172,23 @@ class SurveyFragment : Fragment() {
     private fun setUpCamera(type: SurveyType) {
         if (type != SurveyType.CAMERA) return
 
-        if (viewModel.isCurrentSurveyAnswerRequired())
-            binding.ivCamera.setImageDrawable(
-                ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.ic_camera
-                )
-            )
+        if (viewModel.isCurrentSurveyAnswerRequired()) {
+            val icCameraDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.ic_camera)
+            binding.ivCamera.setImageDrawable(icCameraDrawable)
+        }
+
         val hasCameraPermission = EasyPermissions
             .hasPermissions(requireContext(), android.Manifest.permission.CAMERA)
+
         if (!hasCameraPermission) {
             (activity as ContainerActivity).askForCameraPermission()
             return
         }
+
         binding.ivCamera.setOnClickListener { startForResult.launch("image/*") }
     }
 
-    /**
-     * Inflates a layout file, sets the text of a checkbox, and adds the checkbox to a
-     * LinearLayout
-     *
-     * @param type SurveyType - This is the type of survey. It can be either a radio button, checkbox,
-     * or text input.
-     * @param items List<String> - This is the list of options that will be displayed in the checkbox.
-     * @return A list of strings.
-     */
+
     private fun setUpCheckbox(type: SurveyType, items: List<String>) {
         binding.llCheckbox.removeAllViews()
 
@@ -219,9 +200,6 @@ class SurveyFragment : Fragment() {
                     .apply {
                         mcbCheckbox.text = option
                         mcbCheckbox.id = index
-                        mcbCheckbox.setOnCheckedChangeListener { btn, isChecked ->
-                            Timber.d(btn.text.toString())
-                        }
                         binding.llCheckbox.addView(root)
                     }
             }
@@ -231,13 +209,6 @@ class SurveyFragment : Fragment() {
     }
 
 
-    /**
-     * Takes in a list of strings and adds them to a radio group as radio buttons
-     *
-     * @param type SurveyType - This is the type of survey. It can be one of the following:
-     * @param items List<String>
-     * @return A list of strings.
-     */
     private fun setUpMultipleChoice(type: SurveyType, items: List<String>) {
         binding.rgMultipleChoice.removeAllViews()
 
@@ -255,94 +226,82 @@ class SurveyFragment : Fragment() {
         }
     }
 
-    /**
-     * If the survey type is a dropdown and the items list is not empty, set the adapter of the spinner
-     * to an ArrayAdapter with the items list
-     *
-     * @param type The type of the survey question.
-     * @param items List<String> - The list of items to be displayed in the dropdown
-     * @return The binding object is being returned.
-     */
+
     private fun setUpDropdown(type: SurveyType, items: List<String>) {
         if (type != SurveyType.DROP_DOWN || items.isEmpty()) return
         binding.spDropdown.adapter =
             ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, items)
     }
 
-    /**
-     * When the next button is clicked, the button will bounce, and if the survey is not at the end,
-     * the next survey will be loaded
-     *
-     * @param view View? - The view that was clicked.
-     */
+
     private fun onNextButtonClick(view: View?) {
         view?.bounce()
-        if (!viewModel.isCurrentSurveyAnswerRequired() || getAnswer()) {
-            if (!viewModel.uiState.value.isSurveyAtEnd) viewModel.loadNextSurvey()
-            else Toast.makeText(context, "You are finished.", Toast.LENGTH_LONG).show()
-            return
-        }
-        Toast.makeText(context, "The answer is required.", Toast.LENGTH_LONG).show()
+
+        val canLoadNextQuestion = !viewModel.isCurrentSurveyAnswerRequired()
+                || submitAndCheckIfAnswerSubmitted()
+
+        if (canLoadNextQuestion) {
+            if (viewModel.hasSurveyReachedEnd()) {
+                viewModel.submitSurveyAnswers()
+                showMessage("You are finished")
+            } else viewModel.loadNextSurvey()
+        } else showMessage("The answer is required.")
     }
 
-    private fun getAnswer(): Boolean {
+    private fun submitAndCheckIfAnswerSubmitted(): Boolean {
         val selectedSurvey = viewModel.uiState.value.selectedSurvey
 
-        if (selectedSurvey.type == SurveyType.MULTIPLE_CHOICE) {
-            val answer = selectedSurvey.options[binding.rgMultipleChoice.checkedRadioButtonId]
-            viewModel.answerQuestion(answer)
-            return true
+        return when (selectedSurvey.type) {
+            SurveyType.MULTIPLE_CHOICE -> getAnswerOfMultipleChoiceSurvey(selectedSurvey)
+            SurveyType.NUMBER_INPUT -> getAnswerForNumberInputSurvey()
+            SurveyType.TEXT_INPUT -> getAnswerOfTextInputSurvey()
+            SurveyType.DROP_DOWN -> getAnswerOfDropDownSurvey()
+            SurveyType.CHECKBOX -> getAnswerOfCheckboxes(selectedSurvey)
+            SurveyType.CAMERA -> !viewModel.isCurrentSurveyAnswerRequired()
         }
-
-        if (selectedSurvey.type == SurveyType.NUMBER_INPUT) {
-            val answer = binding.tietNumInput.text.toString()
-            if (answer.isBlank()) return false
-            viewModel.answerQuestion(answer)
-            return true
-        }
-
-        if (selectedSurvey.type == SurveyType.TEXT_INPUT) {
-            val answer = binding.tietInput.text.toString()
-            if (answer.isBlank()) return false
-            viewModel.answerQuestion(answer)
-            return true
-        }
-
-        if (selectedSurvey.type == SurveyType.DROP_DOWN) {
-            val dropDownAnswer = binding.spDropdown.selectedItem.toString()
-            if (dropDownAnswer.isEmpty()) return false
-            viewModel.answerQuestion(dropDownAnswer)
-            return true
-        }
-
-        if (selectedSurvey.type == SurveyType.CHECKBOX) {
-            val answers = mutableListOf<String>()
-
-            binding.llCheckbox.children.forEachIndexed { index, view ->
-                if (view is MaterialCheckBox) {
-                    if (view.isChecked) answers.add(selectedSurvey.options[index])
-                }
-            }
-
-            if (answers.isEmpty()) return false
-            viewModel.answerQuestion(answers)
-
-            return true
-        }
-
-        if (selectedSurvey.type == SurveyType.CAMERA) {
-            return !viewModel.isCurrentSurveyAnswerRequired()
-        }
-
-        return false
     }
 
+    private fun getAnswerOfMultipleChoiceSurvey(selectedSurvey: Survey): Boolean {
+        val answer = selectedSurvey.options[binding.rgMultipleChoice.checkedRadioButtonId]
+        viewModel.answerQuestion(answer)
+        return true
+    }
 
-    /**
-     * When the previous button is clicked, the view is bounced and the previous survey is loaded
-     *
-     * @param view View? - The view that was clicked
-     */
+    private fun getAnswerForNumberInputSurvey(): Boolean {
+        val answer = binding.tietNumInput.text.toString()
+        if (answer.isBlank()) return false
+        viewModel.answerQuestion(answer)
+        return true
+    }
+
+    private fun getAnswerOfTextInputSurvey(): Boolean {
+        val answer = binding.tietInput.text.toString()
+        if (answer.isBlank()) return false
+        viewModel.answerQuestion(answer)
+        return true
+    }
+
+    private fun getAnswerOfDropDownSurvey(): Boolean {
+        val dropDownAnswer = binding.spDropdown.selectedItem.toString()
+        if (dropDownAnswer.isEmpty()) return false
+        viewModel.answerQuestion(dropDownAnswer)
+        return true
+    }
+
+    private fun getAnswerOfCheckboxes(selectedSurvey: Survey): Boolean {
+        val answers = mutableListOf<String>()
+
+        binding.llCheckbox.children.forEachIndexed { index, view ->
+            if (view is MaterialCheckBox && view.isChecked)
+                answers.add(selectedSurvey.options[index])
+        }
+
+        if (answers.isEmpty()) return false
+        viewModel.answerQuestion(answers)
+
+        return true
+    }
+
     private fun onPreviousButtonClick(view: View?) {
         view?.bounce()
         viewModel.loadPrevSurvey()
