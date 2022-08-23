@@ -10,3 +10,20 @@ data class AnsweredSurvey(
     val answerImage: File? = null,
     val multipleChoiceAnswer: List<String>? = null
 )
+
+
+fun mockAnsweredSurvey(id: Int): AnsweredSurvey {
+    return AnsweredSurvey(
+        id = id,
+        question = "Question Question, QUEstion",
+        answerText = "Answer Answer Anser"
+    )
+}
+
+fun mockAnsweredSurveyList(): List<AnsweredSurvey> {
+    val list = mutableListOf<AnsweredSurvey>()
+    for (i in 0..10) {
+        list.add(mockAnsweredSurvey(i))
+    }
+    return list.toList()
+}

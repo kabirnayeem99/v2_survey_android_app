@@ -94,6 +94,8 @@ class SurveyFragment : Fragment() {
 
                 if (isSurveyAtEnd) btnNext.text = getString(R.string.label_finish)
                 if (!isSurveyAtEnd) btnNext.text = getString(R.string.label_next)
+
+                if (isAnswerSaved) navController.navigateUp()
             }
         }
     }

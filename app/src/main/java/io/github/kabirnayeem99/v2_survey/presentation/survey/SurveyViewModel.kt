@@ -140,9 +140,11 @@ class SurveyViewModel @Inject constructor(
             saveSurveyList(Date().time, uiState.value.answers).fold(
                 onSuccess = { data ->
                     Timber.d(data.toString())
+                    _uiState.update { it.copy(isAnswerSaved = true) }
                 },
                 onFailure = { e ->
                     Timber.e(e)
+                    _uiState.update { it.copy(isAnswerSaved = false) }
                 }
             )
         }

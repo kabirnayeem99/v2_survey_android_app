@@ -13,7 +13,7 @@ class SurveyRemoteDataSource @Inject constructor(private val apiService: SurveyA
      * @return A list of Survey.
      */
     suspend fun getSurveyList(): List<Survey> {
-        val surveyList = apiService.getSurvey().body()?.toSurveyList() ?: emptyList()
+        val surveyList = apiService.getSurvey().body()!!.toSurveyList()
         if (surveyList.isEmpty()) throw Exception("Could not find any survey questions.")
         return surveyList
     }

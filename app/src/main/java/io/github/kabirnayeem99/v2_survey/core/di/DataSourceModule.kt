@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.github.kabirnayeem99.v2_survey.data.dataSource.SurveyLocalDataSource
 import io.github.kabirnayeem99.v2_survey.data.dataSource.SurveyRemoteDataSource
 import io.github.kabirnayeem99.v2_survey.data.service.SurveyApiService
 
@@ -13,5 +14,10 @@ object DataSourceModule {
     @Provides
     fun provideSurveyRemoteDataSource(apiService: SurveyApiService): SurveyRemoteDataSource {
         return SurveyRemoteDataSource(apiService)
+    }
+
+    @Provides
+    fun provideSurveyLocalDataSource(): SurveyLocalDataSource {
+        return SurveyLocalDataSource()
     }
 }
