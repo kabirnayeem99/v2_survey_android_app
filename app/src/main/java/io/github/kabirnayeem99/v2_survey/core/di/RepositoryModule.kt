@@ -15,7 +15,10 @@ import javax.inject.Singleton
 object RepositoryModule {
     @Provides
     @Singleton
-    fun provideSurveyRepository(remoteDataSource: SurveyRemoteDataSource, localDataSource: SurveyLocalDataSource): SurveyRepository {
-        return DefaultSurveyRepository(remoteDataSource,localDataSource)
+    fun provideSurveyRepository(
+        remoteDataSource: SurveyRemoteDataSource,
+        localDataSource: SurveyLocalDataSource,
+    ): SurveyRepository {
+        return DefaultSurveyRepository(remoteDataSource, localDataSource)
     }
 }

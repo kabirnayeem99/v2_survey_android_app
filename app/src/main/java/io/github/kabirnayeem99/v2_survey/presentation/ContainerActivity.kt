@@ -54,6 +54,10 @@ class ContainerActivity : AppCompatActivity() {
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
+    override fun onBackPressed() {
+//        super.onBackPressed()
+    }
+
 
     private fun setUpNavigation() {
         findNavController(R.id.nav_host_fragment_content_main)
