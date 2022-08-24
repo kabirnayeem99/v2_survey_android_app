@@ -7,10 +7,9 @@ import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurveyCluster
 import io.github.kabirnayeem99.v2_survey.domain.entity.Survey
 import io.github.kabirnayeem99.v2_survey.domain.repository.SurveyRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -40,13 +39,23 @@ class DefaultSurveyRepository
         }
     }
 
-    override suspend fun getPreviouslyAnsweredSurveyAnswers(): Result<List<AnsweredSurveyCluster>> {
-        return try {
+    private val lock = Mutex()
+    private val inMemoryPreviousAnswers = mutableListOf<AnsweredSurveyCluster>()
+
+    override suspend fun getPreviouslyAnsweredSurveyAnswers(): Flow<Result<List<AnsweredSurveyCluster>>> {
+        return flow {
             val clusters = localDataSource.getPreviouslyAnsweredSurveyAsCluster()
-            Result.success(clusters)
-        } catch (e: Exception) {
+            lock.withLock {
+                inMemoryPreviousAnswers.clear()
+                inMemoryPreviousAnswers.addAll(clusters)
+            }
+            emit(Result.success(clusters))
+        }.onStart {
+            if (inMemoryPreviousAnswers.isNotEmpty())
+                lock.withLock { emit(Result.success(inMemoryPreviousAnswers)) }
+        }.catch { e ->
             Timber.e(e, "Failed to get survey answers -> ${e.localizedMessage}")
-            Result.failure(e)
+            emit(Result.failure(e))
         }
     }
 }

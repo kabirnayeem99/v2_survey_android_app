@@ -14,6 +14,9 @@
         <action
             android:id="@+id/action_OnboardingFragment_to_surveyFragment"
             app:destination="@id/surveyFragment" />
+        <action
+            android:id="@+id/action_OnboardingFragment_to_previousSurveyFragment"
+            app:destination="@id/previousSurveyFragment" />
     </fragment>
 
     <fragment
@@ -21,6 +24,12 @@
         android:name="io.github.kabirnayeem99.v2_survey.presentation.survey.SurveyFragment"
         android:label="SurveyFragment"
         tools:layout="@layout/fragment_survey" />
+
+    <fragment
+        android:id="@+id/previousSurveyFragment"
+        android:name="io.github.kabirnayeem99.v2_survey.presentation.previousAnswers.PreviousSurveyFragment"
+        android:label="PreviousSurveyFragment"
+        tools:layout="@layout/fragment_previous_survey" />
 
 
 </navigation>

@@ -34,6 +34,7 @@ class OnboardingFragment : Fragment() {
     private fun setUpViews() {
         binding.apply {
             btnAction.setOnClickListener(::onTakeTheSurveyButtonClick)
+            btnHistory.setOnClickListener(::onHistoryButtonClick)
         }
     }
 
@@ -44,6 +45,15 @@ class OnboardingFragment : Fragment() {
 
     private fun navigateToSurveyScreen() {
         navController.navigate(R.id.action_OnboardingFragment_to_surveyFragment)
+    }
+
+    private fun onHistoryButtonClick(view: View?) {
+        view?.bounce()
+        navigateToPreviousSurveyScreen()
+    }
+
+    private fun navigateToPreviousSurveyScreen() {
+        navController.navigate(R.id.action_OnboardingFragment_to_previousSurveyFragment)
     }
 
     override fun onDestroyView() {

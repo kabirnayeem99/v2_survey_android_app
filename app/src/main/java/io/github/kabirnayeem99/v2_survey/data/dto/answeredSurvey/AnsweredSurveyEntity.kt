@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurvey
+import timber.log.Timber
 import java.io.File
 
 @Entity(tableName = "answered_survey_entity")
@@ -36,12 +37,34 @@ fun AnsweredSurvey.toAnsweredSurveyEntity(surveyId: Long): AnsweredSurveyEntity 
 }
 
 fun AnsweredSurveyEntity.toAnsweredSurvey(): AnsweredSurvey {
+
+
     return AnsweredSurvey(
         id,
         question,
-        answerText.ifBlank { null },
-        if (answerNumber == -1) null else answerNumber,
-        if (answerImage.absolutePath.isBlank()) null else answerImage,
-        if (multipleChoiceAnswer.isEmpty()) null else multipleChoiceAnswer
+        try {
+            answerText.ifBlank { null }
+        } catch (e: Exception) {
+            Timber.w(e)
+            null
+        },
+        try {
+            if (answerNumber == -1) null else answerNumber
+        } catch (e: Exception) {
+            Timber.w(e)
+            null
+        },
+        try {
+            if (!answerImage.isFile) null else answerImage
+        } catch (e: Exception) {
+            Timber.w(e)
+            null
+        },
+        try {
+            multipleChoiceAnswer.ifEmpty { null }
+        } catch (e: Exception) {
+            Timber.w(e)
+            null
+        }
     )
 }

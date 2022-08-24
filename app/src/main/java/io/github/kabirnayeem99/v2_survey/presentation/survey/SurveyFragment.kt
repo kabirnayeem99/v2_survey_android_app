@@ -20,7 +20,7 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.kabirnayeem99.v2_survey.R
 import io.github.kabirnayeem99.v2_survey.core.ktx.bounce
-import io.github.kabirnayeem99.v2_survey.core.ktx.showMessage
+import io.github.kabirnayeem99.v2_survey.core.ktx.showUserMessage
 import io.github.kabirnayeem99.v2_survey.core.utility.fileFromContentUri
 import io.github.kabirnayeem99.v2_survey.databinding.FragmentSurveyBinding
 import io.github.kabirnayeem99.v2_survey.databinding.LayoutCheckboxItemBinding
@@ -71,8 +71,8 @@ class SurveyFragment : Fragment() {
 
     private fun subscribeToData() {
         lifecycleScope.launch {
+            viewModel.loadAllSurveys()
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.loadAllSurveys()
                 viewModel.uiState.collect(::handleUiState)
             }
         }
@@ -102,7 +102,7 @@ class SurveyFragment : Fragment() {
                 if (isAnswerSaved) navController.navigateUp()
 
                 userMessages.firstOrNull()?.let { message ->
-                    showMessage(message) {
+                    showUserMessage(message) {
                         viewModel.userMessageShown(it.id)
                     }
                 }

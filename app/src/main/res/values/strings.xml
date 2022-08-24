@@ -56,4 +56,6 @@
     <string name="rationale_ask_ok">Allow</string>
     <string name="rationale_ask_cancel">Cancel</string>
     <string name="label_previous_answers">Previous Answers</string>
+    <string name="label_visit_previous_answers">Visit previous answers</string>
+    <string name="label_back_to_home">Back to home</string>
 </resources>
