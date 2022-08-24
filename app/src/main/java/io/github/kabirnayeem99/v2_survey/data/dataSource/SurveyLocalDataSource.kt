@@ -16,6 +16,15 @@ class SurveyLocalDataSource @Inject constructor(
     private val localPreference: LocalPreference,
 ) {
 
+    /**
+     * Returns all the previously answered survey in the local device
+     *
+     * Gets all the survey ids from the local preference, then for each id, it gets the previously
+     * answered survey, then it creates a cluster of the survey id and the list of previously answered
+     * survey, then it adds the cluster to a list of clusters, then it returns the list of clusters
+     *
+     * @return A list of AnsweredSurveyCluster
+     */
     suspend fun getPreviouslyAnsweredSurveyAsCluster(): List<AnsweredSurveyCluster> {
         val clusters = mutableListOf<AnsweredSurveyCluster>()
         localPreference.getAllSurveyIds().forEachIndexed { index, id ->

@@ -40,7 +40,7 @@ class AnswerClusterAdapter : RecyclerView.Adapter<AnswerClusterAdapter.AnswerClu
         val binding = holder.binding
         binding.apply {
             tvTime.text = answerCluster.time.toFormattedDate()
-            // we are using nested recycler view, as the question number can be any
+            // we are using nested recycler view, as the question number can vary
             val eachAnswerAdapter = EachAnswerAdapter()
             eachAnswerAdapter.submitAnswerList(answerCluster.answeredSurveyList)
             binding.rvAnswersList.apply {

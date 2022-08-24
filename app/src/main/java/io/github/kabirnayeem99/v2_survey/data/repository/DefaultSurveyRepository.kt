@@ -20,6 +20,11 @@ class DefaultSurveyRepository
     private val localDataSource: SurveyLocalDataSource,
 ) : SurveyRepository {
 
+    // mutex makes sure that the data is thread safe
+    private val lock = Mutex()
+
+    private val inMemorySurvey = mutableListOf<Survey>()
+
     /**
      * Gets the survey from the server
      *
@@ -27,8 +32,18 @@ class DefaultSurveyRepository
      */
     override suspend fun getSurveyList(): Flow<Result<List<Survey>>> {
         return flow {
-            remoteDataSource.getSurveyList()
-                .also { surveyList -> emit(Result.success(surveyList)) }
+            if (inMemorySurvey.isEmpty()) {
+                val surveyList = remoteDataSource.getSurveyList()
+                lock.withLock {
+                    inMemorySurvey.clear()
+                    inMemorySurvey.addAll(surveyList)
+                }
+                emit(Result.success(surveyList))
+            }
+        }.onStart {
+            lock.withLock {
+                if (inMemorySurvey.isNotEmpty()) emit(Result.success(inMemorySurvey))
+            }
         }.catch { e ->
             Timber.e(e, "Failed to get survey list from server -> ${e.localizedMessage}")
             emit(Result.failure(e))
@@ -54,8 +69,7 @@ class DefaultSurveyRepository
         }
     }
 
-    // mutex makes sure that the data is thread safe
-    private val lock = Mutex()
+
     private val inMemoryPreviousAnswers = mutableListOf<AnsweredSurveyCluster>()
 
     /**
