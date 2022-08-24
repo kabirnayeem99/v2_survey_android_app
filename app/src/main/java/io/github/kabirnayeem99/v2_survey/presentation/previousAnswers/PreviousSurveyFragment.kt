@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.kabirnayeem99.v2_survey.core.ktx.bounce
 import io.github.kabirnayeem99.v2_survey.databinding.FragmentPreviousSurveyBinding
 import io.github.kabirnayeem99.v2_survey.presentation.common.DialogLoading
 import kotlinx.coroutines.launch
@@ -66,6 +67,7 @@ class PreviousSurveyFragment : Fragment() {
                 adapter = answerClusterAdapter
             }
             btnBack.setOnClickListener {
+                it?.bounce()
                 navController.navigateUp()
             }
         }
