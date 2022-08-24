@@ -10,6 +10,14 @@ Room, and Retrofit), and built with Modern Android App Architecture (MVVM + Uncl
 - Can also view previously answered questions.
 - Material Design 3 and auto dark and light mode.
 
+## Demo
+<a href="https://ibb.co/Qbkc4BC"><img src="https://i.ibb.co/2nS6T2s/Screenshot-20220825-005210.png" alt="Screenshot-20220825-005210" border="0"></a>
+<a href="https://ibb.co/cyL5ggH"><img src="https://i.ibb.co/9ptX88L/Screenshot-20220825-005226.png" alt="Screenshot-20220825-005226" border="0"></a>
+<a href="https://ibb.co/pPScrw5"><img src="https://i.ibb.co/0XxTV2v/Screenshot-20220825-005308.png" alt="Screenshot-20220825-005308" border="0"></a>
+<a href="https://ibb.co/VW4wLZ8"><img src="https://i.ibb.co/7JmkS5F/Screenshot-20220825-005332.png" alt="Screenshot-20220825-005332" border="0"></a>
+<a href="https://ibb.co/yq6WDSh"><img src="https://i.ibb.co/L1xnM5Q/Screenshot-20220825-005344.png" alt="Screenshot-20220825-005344" border="0"></a>
+<a href="https://ibb.co/pzyf9Pv"><img src="https://i.ibb.co/6PBHfZR/Screenshot-20220825-005358.png" alt="Screenshot-20220825-005358" border="0"></a>
+
 ## Tech Stack
 
 - Android SDK, for building app for android platform.
