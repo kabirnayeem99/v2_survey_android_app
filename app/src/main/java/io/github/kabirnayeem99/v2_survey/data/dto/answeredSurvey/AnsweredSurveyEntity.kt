@@ -38,32 +38,31 @@ fun AnsweredSurvey.toAnsweredSurveyEntity(surveyId: Long): AnsweredSurveyEntity 
 
 fun AnsweredSurveyEntity.toAnsweredSurvey(): AnsweredSurvey {
 
-
     return AnsweredSurvey(
         id,
         question,
         try {
             answerText.ifBlank { null }
         } catch (e: Exception) {
-            Timber.w(e)
+            Timber.w("Failed to read answer text -> ${e.localizedMessage}")
             null
         },
         try {
             if (answerNumber == -1) null else answerNumber
         } catch (e: Exception) {
-            Timber.w(e)
+            Timber.w("Failed to read answer number -> ${e.localizedMessage}")
             null
         },
         try {
             if (!answerImage.isFile) null else answerImage
         } catch (e: Exception) {
-            Timber.w(e)
+            Timber.w("Failed to read file -> ${e.localizedMessage}")
             null
         },
         try {
             multipleChoiceAnswer.ifEmpty { null }
         } catch (e: Exception) {
-            Timber.w(e)
+            Timber.w("Failed to read multiple choice -> ${e.localizedMessage}")
             null
         }
     )

@@ -4,14 +4,17 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.RecycledViewPool
 import io.github.kabirnayeem99.v2_survey.databinding.LayoutItemAnswerClusterBinding
-import io.github.kabirnayeem99.v2_survey.databinding.LayoutItemEachAnswerBinding
 import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurveyCluster
+import timber.log.Timber
 
 class AnswerClusterAdapter : RecyclerView.Adapter<AnswerClusterAdapter.AnswerClusterHolder>() {
 
-    lateinit var layoutInflater: LayoutInflater
+
+    private val viewPool = RecycledViewPool()
 
     private val diffCallback = object : DiffUtil.ItemCallback<AnsweredSurveyCluster>() {
         override fun areItemsTheSame(oi: AnsweredSurveyCluster, ni: AnsweredSurveyCluster) =
@@ -31,23 +34,23 @@ class AnswerClusterAdapter : RecyclerView.Adapter<AnswerClusterAdapter.AnswerClu
         RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnswerClusterHolder {
-        layoutInflater = LayoutInflater.from(parent.context)
+        val layoutInflater = LayoutInflater.from(parent.context)
         val binding = LayoutItemAnswerClusterBinding.inflate(layoutInflater, parent, false)
         return AnswerClusterHolder(binding)
     }
 
     override fun onBindViewHolder(holder: AnswerClusterHolder, position: Int) {
         val answerCluster = differ.currentList[position]
+        Timber.d(answerCluster.toString())
         val binding = holder.binding
         binding.apply {
             tvTime.text = answerCluster.time.toString()
-            answerCluster.answeredSurveyList.forEach { eachAnswer ->
-                LayoutItemEachAnswerBinding.inflate(layoutInflater, null, false)
-                    .also { eachAnswerBinding ->
-                        eachAnswerBinding.tvQuestion.text = eachAnswer.question
-                        eachAnswerBinding.tvAnswer.text = eachAnswer.answerText ?: ""
-                        llAnswersList.addView(eachAnswerBinding.root)
-                    }
+            val eachAnswerAdapter = EachAnswerAdapter()
+            eachAnswerAdapter.submitAnswerList(answerCluster.answeredSurveyList)
+            Timber.d(answerCluster.answeredSurveyList.toString())
+            binding.rvAnswersList.apply {
+                adapter = eachAnswerAdapter
+                layoutManager = LinearLayoutManager(context)
             }
         }
     }

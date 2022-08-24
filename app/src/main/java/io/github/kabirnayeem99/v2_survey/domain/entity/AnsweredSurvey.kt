@@ -11,7 +11,6 @@ data class AnsweredSurvey(
     val multipleChoiceAnswer: List<String>? = null
 )
 
-
 fun mockAnsweredSurvey(id: Int): AnsweredSurvey {
     return AnsweredSurvey(
         id = id,

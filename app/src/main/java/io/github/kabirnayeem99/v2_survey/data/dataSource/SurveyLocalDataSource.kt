@@ -7,6 +7,7 @@ import io.github.kabirnayeem99.v2_survey.data.service.db.AnsweredSurveyDao
 import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurvey
 import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurveyCluster
 import kotlinx.coroutines.coroutineScope
+import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
@@ -18,10 +19,13 @@ class SurveyLocalDataSource @Inject constructor(
     suspend fun getPreviouslyAnsweredSurveyAsCluster(): List<AnsweredSurveyCluster> {
         val clusters = mutableListOf<AnsweredSurveyCluster>()
         localPreference.getAllSurveyIds().forEachIndexed { index, id ->
+            Timber.d("Querying for $id")
+            val answerList = getPreviouslyAnsweredSurvey(surveyId = id)
+            Timber.d("Result of $answerList")
             AnsweredSurveyCluster(
                 id = index,
                 time = Date(id),
-                answeredSurveyList = getPreviouslyAnsweredSurvey(surveyId = id)
+                answeredSurveyList = answerList
             ).also {
                 clusters.add(it)
             }
@@ -35,7 +39,7 @@ class SurveyLocalDataSource @Inject constructor(
      * @param surveyId Long - The id of the survey we want to get the answers for.
      * @return A list of AnsweredSurvey objects
      */
-    suspend fun getPreviouslyAnsweredSurvey(surveyId: Long): List<AnsweredSurvey> {
+    private suspend fun getPreviouslyAnsweredSurvey(surveyId: Long): List<AnsweredSurvey> {
         return coroutineScope {
             surveyDao.getAnsweredSurveyById(surveyId).map { entity ->
                 entity.toAnsweredSurvey()
@@ -53,7 +57,9 @@ class SurveyLocalDataSource @Inject constructor(
         coroutineScope {
             localPreference.saveSurveyId(id)
             val answeredSurveyEntities = answers.map { it.toAnsweredSurveyEntity(id) }
-            surveyDao.insertAnsweredSurvey(answeredSurveyEntities)
+            surveyDao.insertAnsweredSurvey(answeredSurveyEntities.map {
+                it.copy(id = it.id + id.toInt())
+            })
         }
     }
 }

@@ -37,8 +37,8 @@
                 tools:text="13/20/2022" />
         </com.google.android.material.card.MaterialCardView>
 
-        <LinearLayout
-            android:id="@+id/ll_answers_list"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_answers_list"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -47,9 +47,11 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/mcv_time">
+            app:layout_constraintTop_toBottomOf="@id/mcv_time"
+            tools:itemCount="6"
+            tools:listitem="@layout/layout_item_each_answer" />
 
-        </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
