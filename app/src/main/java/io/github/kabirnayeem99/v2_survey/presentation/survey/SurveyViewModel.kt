@@ -27,6 +27,10 @@ class SurveyViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private var loadAllSurveysJob: Job? = null
+
+    /**
+     * Loads the whole survey with all of its questions and options on the first time
+     */
     fun loadAllSurveys() {
         loadAllSurveysJob?.cancel()
 
@@ -56,6 +60,10 @@ class SurveyViewModel @Inject constructor(
     }
 
     private var loadNextSurveyJob: Job? = null
+
+    /**
+     * Loads the next survey
+     */
     fun loadNextSurvey() {
         loadNextSurveyJob?.cancel()
         loadNextSurveyJob = viewModelScope.launch(Dispatchers.IO) {
@@ -88,6 +96,10 @@ class SurveyViewModel @Inject constructor(
     }
 
     private var loadPrevSurveyJob: Job? = null
+
+    /**
+     * Loads Previous survey
+     */
     fun loadPrevSurvey() {
         loadPrevSurveyJob?.cancel()
         loadPrevSurveyJob = viewModelScope.launch(Dispatchers.IO) {
@@ -118,6 +130,13 @@ class SurveyViewModel @Inject constructor(
     }
 
     private var answerQuestionJob: Job? = null
+
+    /**
+     * Save each question's answer to the UI state, to store state even while going forward
+     * or going backward
+     *
+     * @param ans Any, that will save the answer based on the type of the answer.
+     */
     fun answerQuestion(ans: Any) {
         answerQuestionJob?.cancel()
         answerQuestionJob = viewModelScope.launch(Dispatchers.IO) {
@@ -141,6 +160,10 @@ class SurveyViewModel @Inject constructor(
     }
 
     private var submitSurveyAnswersJob: Job? = null
+
+    /**
+     * Submits survey answers to save the user's overall response
+     */
     fun submitSurveyAnswers() {
         submitSurveyAnswersJob?.cancel()
         submitSurveyAnswersJob = viewModelScope.launch {
@@ -227,7 +250,13 @@ class SurveyViewModel @Inject constructor(
      * @param state The current state of the UI.
      */
     private suspend fun calculateProgress(index: Int, state: SurveyUiState) =
-        coroutineScope { ((index.toDouble() / state.surveys.size.toDouble()) * 100).toInt() + 10 }
+        coroutineScope {
+            // some time while the number of item is 6, or 8
+            // the last item may show incomplete progress, so we are manually
+            // setting it to 100% for the last item
+            if (index == state.surveys.size - 1) 100
+            else ((index.toDouble() / state.surveys.size.toDouble()) * 100).toInt() + 10
+        }
 
     /**
      * Checks if the index of the current survey is the last one in the list

@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import io.github.kabirnayeem99.v2_survey.core.utility.toFormattedDate
 import io.github.kabirnayeem99.v2_survey.databinding.LayoutItemAnswerClusterBinding
 import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurveyCluster
-import timber.log.Timber
 
 class AnswerClusterAdapter : RecyclerView.Adapter<AnswerClusterAdapter.AnswerClusterHolder>() {
 
@@ -38,13 +37,12 @@ class AnswerClusterAdapter : RecyclerView.Adapter<AnswerClusterAdapter.AnswerClu
 
     override fun onBindViewHolder(holder: AnswerClusterHolder, position: Int) {
         val answerCluster = differ.currentList[position]
-        Timber.d(answerCluster.toString())
         val binding = holder.binding
         binding.apply {
             tvTime.text = answerCluster.time.toFormattedDate()
+            // we are using nested recycler view, as the question number can be any
             val eachAnswerAdapter = EachAnswerAdapter()
             eachAnswerAdapter.submitAnswerList(answerCluster.answeredSurveyList)
-            Timber.d(answerCluster.answeredSurveyList.toString())
             binding.rvAnswersList.apply {
                 adapter = eachAnswerAdapter
                 layoutManager = LinearLayoutManager(context)

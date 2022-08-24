@@ -20,13 +20,13 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class PreviousSurveyFragment : Fragment() {
 
+    // Binding will keep a reference to our view (binding.root)
+    // even after the onDestroyView is called, so we are making it null in onDestroyView
     private var _binding: FragmentPreviousSurveyBinding? = null
     private val binding get() = _binding!!
+
     private val navController by lazy { findNavController() }
-    private val loading: DialogLoading by lazy(mode = LazyThreadSafetyMode.NONE) {
-        DialogLoading(requireActivity())
-    }
-    private val viewModel: PreviousSurveyViewModel by viewModels()
+    private val loading: DialogLoading by lazy { DialogLoading(requireActivity()) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,6 +42,7 @@ class PreviousSurveyFragment : Fragment() {
         setUpViews()
     }
 
+    private val viewModel: PreviousSurveyViewModel by viewModels()
     private fun subscribeData() {
         lifecycleScope.launch {
             viewModel.fetchPreviousSurveyList()
@@ -66,8 +67,8 @@ class PreviousSurveyFragment : Fragment() {
                 layoutManager = LinearLayoutManager(context)
                 adapter = answerClusterAdapter
             }
-            btnBack.setOnClickListener {
-                it?.bounce()
+            btnBack.setOnClickListener { view ->
+                view?.bounce()
                 navController.navigateUp()
             }
         }

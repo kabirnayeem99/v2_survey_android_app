@@ -39,7 +39,6 @@ class EachAnswerAdapter : RecyclerView.Adapter<EachAnswerAdapter.EachAnswerHolde
 
     override fun onBindViewHolder(holder: EachAnswerHolder, position: Int) {
         val answer = differ.currentList[position]
-        Timber.d(answer.toString())
         holder.binding.apply {
             if (answer.answerImage != null) {
                 ivImage.visibility = View.VISIBLE
@@ -52,11 +51,9 @@ class EachAnswerAdapter : RecyclerView.Adapter<EachAnswerAdapter.EachAnswerHolde
             }
 
             tvQuestion.text = answer.question
-
         }
     }
 
     override fun getItemCount() = differ.currentList.size
-
 
 }

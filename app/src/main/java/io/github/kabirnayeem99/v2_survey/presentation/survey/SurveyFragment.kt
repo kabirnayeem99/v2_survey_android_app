@@ -1,5 +1,6 @@
 package io.github.kabirnayeem99.v2_survey.presentation.survey
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -43,10 +44,9 @@ class SurveyFragment : Fragment() {
 
     private var _binding: FragmentSurveyBinding? = null
     private val binding get() = _binding!!
+
     private val navController by lazy { findNavController() }
-    private val loading: DialogLoading by lazy(mode = LazyThreadSafetyMode.NONE) {
-        DialogLoading(requireActivity())
-    }
+    private val loading: DialogLoading by lazy { DialogLoading(requireActivity()) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,6 +62,9 @@ class SurveyFragment : Fragment() {
         subscribeToData()
     }
 
+    /**
+     * Configuring views
+     */
     private fun setUpViews() {
         binding.apply {
             btnNext.setOnClickListener(::onNextButtonClick)
@@ -85,7 +88,8 @@ class SurveyFragment : Fragment() {
 
                 lpiSurveyProgress.progress = progress
                 tvQuestion.text = selectedSurvey.question
-                tvQuestionNo.text = "Q. ${currentSurveyIndex + 1}"
+                tvQuestionNo.text =
+                    getString(R.string.label_question_number, currentSurveyIndex + 1)
 
                 manageVisibilityBasedOnType(uiState.selectedSurvey.type)
 
@@ -99,12 +103,12 @@ class SurveyFragment : Fragment() {
                 if (isSurveyAtEnd) btnNext.text = getString(R.string.label_finish)
                 if (!isSurveyAtEnd) btnNext.text = getString(R.string.label_next)
 
+                // if the answer is saved, we can go back to the onboarding screen
                 if (isAnswerSaved) navController.navigateUp()
 
+                // showing the first user in the user message stack
                 userMessages.firstOrNull()?.let { message ->
-                    showUserMessage(message) {
-                        viewModel.userMessageShown(it.id)
-                    }
+                    showUserMessage(message) { viewModel.userMessageShown(it.id) }
                 }
             }
         }
@@ -167,37 +171,58 @@ class SurveyFragment : Fragment() {
 
     private val startForResult =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            try {
-                if (uri != null) {
-                    try {
-                        binding.ivCamera.setImageURI(uri)
-                        lifecycleScope.launch {
-                            convertContentUriToFile(requireContext(), uri)?.let { file ->
-                                viewModel.answerQuestion(file)
-                            }
-                        }
-                    } catch (e: Exception) {
-                        viewModel.makeUserMessage(exception = e)
-                    }
-                } else {
-                    Timber.e("Failed to take image")
-                }
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to pick image -> ${e.localizedMessage}")
-                viewModel.makeUserMessage(exception = e)
-            }
+            takeAndConvertTheUriToFile(uri)
         }
 
+    /**
+     * Takes the URI from the Gallery intent, sets the image view to the URI, and then converts the
+     * URI to a file and saves the file as an answer
+     *
+     * @param uri The uri of the image taken from the camera.
+     */
+    private fun takeAndConvertTheUriToFile(uri: Uri?) {
+        try {
+            binding.ivCamera.setImageURI(uri!!)
+            lifecycleScope.launch {
+                convertContentUriToFile(requireContext(), uri)
+                    ?.let { file -> viewModel.answerQuestion(file) }
+            }
+        } catch (e: Exception) {
+            viewModel.makeUserMessage(exception = e)
+        }
+    }
+
+    /**
+     * If the type of the survey is not a number input, then return. Otherwise, set the text of the
+     * number input to the answer text of the answer, or an empty string if the answer is null
+     *
+     * @param type The type of the survey question.
+     * @param answer The answer to the question, if it exists.
+     */
     private fun setUpNumberInput(type: SurveyType, answer: AnsweredSurvey?) {
         if (type != SurveyType.NUMBER_INPUT) return
         binding.tietNumInput.setText(answer?.answerText ?: "")
     }
 
+    /**
+     * If the type of the survey is not a text input, then return. Otherwise, set the text of the text
+     * input to the answer text if it exists, or an empty string if it doesn't
+     *
+     * @param type The type of survey question.
+     * @param answer The answer to the question, if it exists.
+     */
     private fun setUpTextInput(type: SurveyType, answer: AnsweredSurvey?) {
         if (type != SurveyType.TEXT_INPUT) return
         binding.tietInput.setText(answer?.answerText ?: "")
     }
 
+    /**
+     * Sets up the camera for the user to take a picture, if the survey question is
+     * a camera question
+     *
+     * @param type SurveyType - This is the type of survey. It can be one of the following:
+     * @param selectedAnswer AnsweredSurvey?, the already answered question of the user
+     */
     private fun setUpCamera(type: SurveyType, selectedAnswer: AnsweredSurvey?) {
         try {
             if (type != SurveyType.CAMERA) return
@@ -221,12 +246,17 @@ class SurveyFragment : Fragment() {
 
             binding.ivCamera.setOnClickListener { startForResult.launch("image/*") }
         } catch (e: Exception) {
-            Timber.e(e, "Failed to set up camera -> ${e.localizedMessage}")
             viewModel.makeUserMessage(exception = e)
         }
     }
 
 
+    /**
+     * Used to set up the checkbox UI for the survey
+     *
+     * @param type SurveyType - This is the type of survey question.
+     * @param items List<String> - The list of options for the checkbox
+     */
     private fun setUpCheckbox(type: SurveyType, items: List<String>) {
         try {
             binding.llCheckbox.removeAllViews()
@@ -239,6 +269,8 @@ class SurveyFragment : Fragment() {
                 LayoutCheckboxItemBinding
                     .inflate(layoutInflater, null, false)
                     .apply {
+                        // if the user already answered the question once
+                        // we are selecting the one user has selected previously
                         val isChecked = answer?.contains(option) ?: false
                         mcbCheckbox.text = option
                         mcbCheckbox.id = index
@@ -252,17 +284,26 @@ class SurveyFragment : Fragment() {
     }
 
 
-    private fun setUpMultipleChoice(type: SurveyType, items: List<String>) {
-        binding.rgMultipleChoice.removeAllViews()
-
-        if (type != SurveyType.MULTIPLE_CHOICE || items.isEmpty()) return
-
-        val answer = viewModel.uiState.value.selectedAnswer?.answerText
-
+    /**
+     * Takes a list of strings and adds them to a radio group as radio buttons
+     *
+     * @param type SurveyType - This is the type of survey. It can be one of the following:
+     * @param options List<String> - This is the list of options that the user can select from.
+     */
+    private fun setUpMultipleChoice(type: SurveyType, options: List<String>) {
         try {
-            items.forEachIndexed { index, option ->
+            binding.rgMultipleChoice.removeAllViews()
+
+            if (type != SurveyType.MULTIPLE_CHOICE || options.isEmpty()) return
+
+            val answer = viewModel.uiState.value.selectedAnswer?.answerText
+
+            // for each options we are creating a radio button
+            // and adding it to the radio button group dynamically
+            options.forEachIndexed { index, option ->
+                // if the user already answered the question once
+                // we are selecting the one user has answered previously
                 val isThisChecked = option == answer
-                Timber.d("Is $option checked -> $isThisChecked")
                 val btn = RadioButton(requireContext())
                 btn.id = index
                 btn.text = option
@@ -275,11 +316,29 @@ class SurveyFragment : Fragment() {
     }
 
 
+    /**
+     * If the type is not drop down, or there are no options, we don't need to proceed further.
+     * Otherwise, we set up the dropdown with the options, and if the user has already answered the
+     * question, we select their answer
+     *
+     * @param type SurveyType - this is the type of the question, which can be either a drop down or a
+     * text field
+     * @param options List<String> - This is the list of options that the user can select from.
+     */
     private fun setUpDropdown(type: SurveyType, options: List<String>) {
+        // if there is not option, and the type is not drop down,
+        // we don't need to proceed further
         if (type != SurveyType.DROP_DOWN || options.isEmpty()) return
         binding.spDropdown.adapter =
-            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, options)
+            ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_spinner_dropdown_item,
+                options
+            )
 
+        // we are checking the user has already answered it or not
+        // if they have, we can select their answer previously given
+        // or we won't select any particular one
         val answer = viewModel.uiState.value.selectedAnswer
         var selectedItem = -1
         options.forEachIndexed { index, option ->
@@ -293,20 +352,31 @@ class SurveyFragment : Fragment() {
     private fun onNextButtonClick(view: View?) {
         view?.bounce()
 
+        // we can load the next question if current answer is not required or if the answer is
+        // already given
         val canLoadNextQuestion = !viewModel.isCurrentSurveyAnswerRequired()
                 || submitAndCheckIfAnswerSubmitted()
 
         if (canLoadNextQuestion) {
-            if (viewModel.hasSurveyReachedEnd()) {
-                viewModel.submitSurveyAnswers()
-            } else viewModel.loadNextSurvey()
+            // we are checking if this is the last question or not
+            // if it is, we are submitting the answer
+            if (viewModel.hasSurveyReachedEnd()) viewModel.submitSurveyAnswers()
+            // if it is not, we are loading next question
+            else viewModel.loadNextSurvey()
         } else viewModel.makeUserMessage(messageText = "The answer is required.")
 
     }
 
+    /**
+     * Gets the answer of the current question, based on the type of the question
+     *
+     * @return Boolean, whether there is a answer of the question or not.
+     */
     private fun submitAndCheckIfAnswerSubmitted(): Boolean {
         val selectedSurvey = viewModel.uiState.value.selectedSurvey
 
+        // as different question have different type, and thus requires different collection technique
+        // we are first checking its type, and using respective method.
         return when (selectedSurvey.type) {
             SurveyType.MULTIPLE_CHOICE -> getAnswerOfMultipleChoiceSurvey(selectedSurvey)
             SurveyType.NUMBER_INPUT -> getAnswerForNumberInputSurvey()
@@ -317,18 +387,32 @@ class SurveyFragment : Fragment() {
         }
     }
 
+    /**
+     * Gets the answer of the multiple choice survey question
+     *
+     * @return Boolean, whether there is a answer of the question or not.
+     */
     private fun getAnswerOfMultipleChoiceSurvey(selectedSurvey: Survey): Boolean {
-        try {
+        return try {
+            // gets the one option which have the index of the selected radio button
             val answer = selectedSurvey.options[binding.rgMultipleChoice.checkedRadioButtonId]
             viewModel.answerQuestion(answer)
-            return true
+            true
         } catch (e: Exception) {
-            Timber.e(e, "Failed to get answer of multiple choice survey -> ${e.localizedMessage}")
+            Timber.e(
+                e,
+                "Failed to get answer of multiple choice survey -> ${e.localizedMessage}"
+            )
             viewModel.makeUserMessage(exception = e)
-            return false
+            false
         }
     }
 
+    /**
+     * Gets the answer of the number input survey question
+     *
+     * @return Boolean, whether there is a answer of the question or not.
+     */
     private fun getAnswerForNumberInputSurvey(): Boolean {
         try {
             val answer = binding.tietNumInput.text.toString()
@@ -341,18 +425,29 @@ class SurveyFragment : Fragment() {
         }
     }
 
+    /**
+     * Gets the answer of the text input survey question
+     *
+     * @return Boolean, whether there is a answer of the question or not.
+     */
     private fun getAnswerOfTextInputSurvey(): Boolean {
-        try {
+        return try {
             val answer = binding.tietInput.text.toString()
             if (answer.isBlank()) return false
             viewModel.answerQuestion(answer)
-            return true
+            true
         } catch (e: Exception) {
             viewModel.makeUserMessage(exception = e)
-            return false
+            false
         }
     }
 
+
+    /**
+     * Gets the answer of the drop down survey
+     *
+     * @return Boolean, whether there is a answer of the question or not.
+     */
     private fun getAnswerOfDropDownSurvey(): Boolean {
         try {
             val dropDownAnswer = binding.spDropdown.selectedItem.toString()
@@ -365,12 +460,22 @@ class SurveyFragment : Fragment() {
         }
     }
 
+    /**
+     * Gets the answer of checkbox type questions
+     *
+     * @param selectedSurvey Survey
+     * @return Boolean, whether there is a answer of the question or not.
+     */
     private fun getAnswerOfCheckboxes(selectedSurvey: Survey): Boolean {
         try {
             val answers = mutableListOf<String>()
 
+            // iterates over all the children of linear layout,
+            // which are custom layout we have bound before
+            // to options of the multiple choice questions
             binding.llCheckbox.children.forEachIndexed { index, view ->
                 if (view is MaterialCheckBox && view.isChecked)
+                // we are adding option to answer, if the option's checkbox is checked
                     answers.add(selectedSurvey.options[index])
             }
 
@@ -379,6 +484,7 @@ class SurveyFragment : Fragment() {
 
             return true
         } catch (e: Exception) {
+            viewModel.makeUserMessage(exception = e)
             return false
         }
     }

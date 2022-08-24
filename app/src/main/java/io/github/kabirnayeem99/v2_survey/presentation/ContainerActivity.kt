@@ -11,6 +11,7 @@ import io.github.kabirnayeem99.v2_survey.databinding.ActivityContainerBinding
 import io.github.kabirnayeem99.v2_survey.presentation.survey.RC_TAKE_PHOTO
 import pub.devrel.easypermissions.EasyPermissions
 import pub.devrel.easypermissions.PermissionRequest
+import timber.log.Timber
 
 
 @AndroidEntryPoint
@@ -25,6 +26,7 @@ class ContainerActivity : AppCompatActivity() {
         binding = ActivityContainerBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setUpNavigation()
+        askForCameraPermission()
     }
 
     private fun configureUi() {
@@ -55,7 +57,7 @@ class ContainerActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-//        super.onBackPressed()
+        Timber.d("User has pressed on the back button, but we won't let him go back.")
     }
 
 
