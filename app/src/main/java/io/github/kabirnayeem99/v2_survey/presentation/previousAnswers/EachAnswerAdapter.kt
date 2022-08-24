@@ -1,7 +1,9 @@
 package io.github.kabirnayeem99.v2_survey.presentation.previousAnswers
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -39,8 +41,18 @@ class EachAnswerAdapter : RecyclerView.Adapter<EachAnswerAdapter.EachAnswerHolde
         val answer = differ.currentList[position]
         Timber.d(answer.toString())
         holder.binding.apply {
-            tvAnswer.text = answer.answerText ?: ""
+            if (answer.answerImage != null) {
+                ivImage.visibility = View.VISIBLE
+                ivImage.setImageURI(answer.answerImage.toUri())
+            }
+            if (!answer.answerText.isNullOrBlank() || answer.multipleChoiceAnswer?.isNotEmpty() == true) {
+                tvAnswer.visibility = View.VISIBLE
+                if (!answer.answerText.isNullOrBlank()) tvAnswer.text = answer.answerText
+                else tvAnswer.text = answer.multipleChoiceAnswer?.joinToString(", ") ?: ""
+            }
+
             tvQuestion.text = answer.question
+
         }
     }
 

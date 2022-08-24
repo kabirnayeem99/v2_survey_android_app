@@ -21,7 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.kabirnayeem99.v2_survey.R
 import io.github.kabirnayeem99.v2_survey.core.ktx.bounce
 import io.github.kabirnayeem99.v2_survey.core.ktx.showUserMessage
-import io.github.kabirnayeem99.v2_survey.core.utility.fileFromContentUri
+import io.github.kabirnayeem99.v2_survey.core.utility.convertContentUriToFile
 import io.github.kabirnayeem99.v2_survey.databinding.FragmentSurveyBinding
 import io.github.kabirnayeem99.v2_survey.databinding.LayoutCheckboxItemBinding
 import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurvey
@@ -171,8 +171,11 @@ class SurveyFragment : Fragment() {
                 if (uri != null) {
                     try {
                         binding.ivCamera.setImageURI(uri)
-                        val file = fileFromContentUri(requireContext(), uri)
-                        viewModel.answerQuestion(file)
+                        lifecycleScope.launch {
+                            convertContentUriToFile(requireContext(), uri)?.let { file ->
+                                viewModel.answerQuestion(file)
+                            }
+                        }
                     } catch (e: Exception) {
                         viewModel.makeUserMessage(exception = e)
                     }

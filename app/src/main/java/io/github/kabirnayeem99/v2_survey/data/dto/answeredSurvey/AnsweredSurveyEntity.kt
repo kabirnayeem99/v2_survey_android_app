@@ -54,7 +54,8 @@ fun AnsweredSurveyEntity.toAnsweredSurvey(): AnsweredSurvey {
             null
         },
         try {
-            if (!answerImage.isFile) null else answerImage
+            Timber.d(answerImage.toString())
+            if (!answerImage.canRead()) null else answerImage
         } catch (e: Exception) {
             Timber.w("Failed to read file -> ${e.localizedMessage}")
             null

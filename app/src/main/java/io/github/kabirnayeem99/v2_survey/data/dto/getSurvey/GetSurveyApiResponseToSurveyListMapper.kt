@@ -11,15 +11,13 @@ import io.github.kabirnayeem99.v2_survey.domain.entity.SurveyType
  * @return List<Survey>
  */
 fun GetSurveyApiResponseDto.toSurveyList(): List<Survey> {
-    return map { i ->
+    return map { surveyItemDto ->
         Survey(
-            id = i.id ?: -1,
-            question = i.question ?: "",
-            options = i.options?.map { o ->
-                o?.value ?: ""
-            } ?: emptyList(),
-            isRequired = i.required ?: false,
-            type = getSurveyType(i.type),
+            id = surveyItemDto.id ?: -1,
+            question = surveyItemDto.question ?: "",
+            options = surveyItemDto.options?.map { option -> option?.value ?: "" } ?: emptyList(),
+            isRequired = surveyItemDto.required ?: false,
+            type = getSurveyType(surveyItemDto.type),
         )
     }
 }
@@ -35,12 +33,13 @@ fun GetSurveyApiResponseDto.toSurveyList(): List<Survey> {
  * @return A SurveyType object
  */
 private fun getSurveyType(type: String?): SurveyType {
-    if (type == "multipleChoice") return SurveyType.MULTIPLE_CHOICE
-    if (type == "textInput") return SurveyType.TEXT_INPUT
-    if (type == "dropdown") return SurveyType.DROP_DOWN
-    if (type == "checkbox") return SurveyType.CHECKBOX
-    if (type == "numberInput") return SurveyType.NUMBER_INPUT
-    if (type == "camera") return SurveyType.CAMERA
-
-    return SurveyType.TEXT_INPUT
+    return when (type) {
+        "multipleChoice" -> SurveyType.MULTIPLE_CHOICE
+        "textInput" -> SurveyType.TEXT_INPUT
+        "dropdown" -> SurveyType.DROP_DOWN
+        "checkbox" -> SurveyType.CHECKBOX
+        "numberInput" -> SurveyType.NUMBER_INPUT
+        "camera" -> SurveyType.CAMERA
+        else -> SurveyType.TEXT_INPUT
+    }
 }

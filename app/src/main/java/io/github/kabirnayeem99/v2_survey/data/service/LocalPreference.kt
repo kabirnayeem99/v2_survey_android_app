@@ -25,8 +25,9 @@ class LocalPreference @Inject constructor(private val context: Context) {
     suspend fun getAllSurveyIds(): List<Long> {
         return coroutineScope {
             try {
-                if (prefs == null) prefs =
-                    context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
+                if (prefs == null)
+                    prefs = context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
+
                 val json = prefs?.getString(surveyIdListKey, "")
                 gson.fromJson<List<Long>>(json, object : TypeToken<List<Long>>() {}.type)
                     ?: emptyList()

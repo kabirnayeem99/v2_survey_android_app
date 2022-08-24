@@ -42,6 +42,7 @@ class SurveyLocalDataSource @Inject constructor(
     private suspend fun getPreviouslyAnsweredSurvey(surveyId: Long): List<AnsweredSurvey> {
         return coroutineScope {
             surveyDao.getAnsweredSurveyById(surveyId).map { entity ->
+                Timber.d("Entity -> $entity")
                 entity.toAnsweredSurvey()
             }
         }
@@ -57,6 +58,7 @@ class SurveyLocalDataSource @Inject constructor(
         coroutineScope {
             localPreference.saveSurveyId(id)
             val answeredSurveyEntities = answers.map { it.toAnsweredSurveyEntity(id) }
+            Timber.d(answeredSurveyEntities.toString())
             surveyDao.insertAnsweredSurvey(answeredSurveyEntities.map {
                 it.copy(id = it.id + id.toInt())
             })
