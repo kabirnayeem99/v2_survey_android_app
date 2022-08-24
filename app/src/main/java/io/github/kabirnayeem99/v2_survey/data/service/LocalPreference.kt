@@ -17,6 +17,11 @@ class LocalPreference @Inject constructor(private val context: Context) {
     private val surveyIdListKey = "survey_id_list_name"
     private val gson by lazy { Gson() }
 
+    /**
+     * Gets a list of survey ids that the user has answered
+     *
+     * @return A list of survey ids
+     */
     suspend fun getAllSurveyIds(): List<Long> {
         return coroutineScope {
             try {
@@ -32,6 +37,11 @@ class LocalPreference @Inject constructor(private val context: Context) {
         }
     }
 
+    /**
+     * Saves a survey id
+     *
+     * @param surveyId The id of the survey to save
+     */
     suspend fun saveSurveyId(surveyId: Long) {
         coroutineScope {
             try {

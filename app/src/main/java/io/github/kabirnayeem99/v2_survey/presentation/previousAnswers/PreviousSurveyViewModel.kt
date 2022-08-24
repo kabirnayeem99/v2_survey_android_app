@@ -23,17 +23,19 @@ class PreviousSurveyViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private var fetchPreviousSurveyListJob: Job? = null
+
+    /**
+     * Fetches a list of previous surveys from the database and updates the UI state with the result
+     */
     fun fetchPreviousSurveyList() {
         fetchPreviousSurveyListJob?.cancel()
         fetchPreviousSurveyListJob = viewModelScope.launch {
             getPreviousSurveyList().collect { res ->
                 res.fold(
-                    onFailure = { e ->
-                        makeUserMessage(exception = e)
-                    },
+                    onFailure = { e -> makeUserMessage(exception = e) },
                     onSuccess = { answerClusters ->
-                        _uiState.update {
-                            it.copy(answerClusters = answerClusters, count = answerClusters.size)
+                        _uiState.update { state ->
+                            state.copy(answerClusters = answerClusters, count = answerClusters.size)
                         }
                     }
                 )
@@ -47,7 +49,7 @@ class PreviousSurveyViewModel @Inject constructor(
      * @param messageText The text of the message to be sent.
      * @return Nothing.
      */
-    fun makeUserMessage(messageText: String? = null, exception: Throwable? = null) {
+    private fun makeUserMessage(messageText: String? = null, exception: Throwable? = null) {
 
         if (!messageText.isNullOrBlank()) {
             viewModelScope.launch(Dispatchers.IO) {

@@ -6,15 +6,11 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.RecycledViewPool
 import io.github.kabirnayeem99.v2_survey.databinding.LayoutItemAnswerClusterBinding
 import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurveyCluster
 import timber.log.Timber
 
 class AnswerClusterAdapter : RecyclerView.Adapter<AnswerClusterAdapter.AnswerClusterHolder>() {
-
-
-    private val viewPool = RecycledViewPool()
 
     private val diffCallback = object : DiffUtil.ItemCallback<AnsweredSurveyCluster>() {
         override fun areItemsTheSame(oi: AnsweredSurveyCluster, ni: AnsweredSurveyCluster) =

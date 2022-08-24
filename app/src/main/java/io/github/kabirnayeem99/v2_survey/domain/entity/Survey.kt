@@ -1,7 +1,15 @@
 package io.github.kabirnayeem99.v2_survey.domain.entity
 
-import java.util.*
-
+/**
+ * Survey is the core entity of the project, which holds individual survey item.
+ *
+ * @property {Int} id - The unique identifier for the survey.
+ * @property {String} question - The question that will be asked to the user.
+ * @property {List<String>} options - This is a list of options that the user can choose from.
+ * @property {Boolean} isRequired - Whether the survey is required or not.
+ * @property {SurveyType} type - This is the type of the survey. It can multiple choice, text input,
+ * drop down, check box, number input or camera.
+ */
 data class Survey(
     val id: Int,
     val question: String,
@@ -10,6 +18,9 @@ data class Survey(
     val type: SurveyType,
 )
 
+/**
+ * Defines the different types of questions that can be asked in a survey.
+ */
 enum class SurveyType {
     MULTIPLE_CHOICE,
     TEXT_INPUT,
@@ -17,23 +28,5 @@ enum class SurveyType {
     CHECKBOX,
     NUMBER_INPUT,
     CAMERA,
-}
-
-fun mockSurvey(id: Int = 0): Survey {
-    return Survey(
-        id = id,
-        question = "Test test test test ${id + 1}?",
-        isRequired = Random().nextBoolean(),
-        type = SurveyType.CAMERA,
-        options = emptyList(),
-    )
-}
-
-fun mockSurveyList(): List<Survey> {
-    val surveys = mutableListOf<Survey>()
-    for (i in 0..9) {
-        surveys.add(mockSurvey(i))
-    }
-    return surveys.toList()
 }
 

@@ -11,7 +11,7 @@ class DialogLoading(context: Context) : Dialog(context) {
 
     init {
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        setCancelable(true)
+        setCancelable(false)
         setCanceledOnTouchOutside(false)
     }
 

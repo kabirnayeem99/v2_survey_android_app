@@ -9,6 +9,11 @@ class GetSurveyList @Inject constructor(
     private val repository: SurveyRepository
 ) {
 
+    /**
+     * Returns the list of survey questions
+     *
+     * @return a list of [Survey] wrapped in [Result] as a [Flow]
+     */
     suspend operator fun invoke(): Flow<Result<List<Survey>>> {
         return repository.getSurveyList()
     }

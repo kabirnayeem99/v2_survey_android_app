@@ -34,7 +34,7 @@ import pub.devrel.easypermissions.EasyPermissions
 import timber.log.Timber
 
 
-const val RC_TAKE_PHOTO = 29293;
+const val RC_TAKE_PHOTO = 29293
 
 @AndroidEntryPoint
 class SurveyFragment : Fragment() {
