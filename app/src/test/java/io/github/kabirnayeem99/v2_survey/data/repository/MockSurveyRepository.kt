@@ -1,4 +1,4 @@
-package io.github.kabirnayeem99.v2_survey.data.dto.repository
+package io.github.kabirnayeem99.v2_survey.data.repository
 
 import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurvey
 import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurveyCluster

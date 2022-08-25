@@ -1,6 +1,6 @@
 package io.github.kabirnayeem99.v2_survey.presentation.survey
 
-import io.github.kabirnayeem99.v2_survey.data.dto.repository.MockSurveyRepository
+import io.github.kabirnayeem99.v2_survey.data.repository.MockSurveyRepository
 import io.github.kabirnayeem99.v2_survey.domain.useCase.GetSurveyList
 import io.github.kabirnayeem99.v2_survey.domain.useCase.SaveSurveyList
 import kotlinx.coroutines.Dispatchers
