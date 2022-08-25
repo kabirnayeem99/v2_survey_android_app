@@ -3,6 +3,7 @@ package io.github.kabirnayeem99.v2_survey.data.service
 import io.github.kabirnayeem99.v2_survey.data.dto.getSurvey.GetSurveyApiResponseDto
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Header
 
 interface SurveyApiService {
 
@@ -29,5 +30,5 @@ interface SurveyApiService {
      * required: This key is a Boolean type determining if the question is required or not. If required it must be answered and vice versa.
      */
     @GET("getSurvey")
-    suspend fun getSurvey(): Response<GetSurveyApiResponseDto>
+    suspend fun getSurvey(@Header("timestamp") timestamp: Long): Response<GetSurveyApiResponseDto>
 }

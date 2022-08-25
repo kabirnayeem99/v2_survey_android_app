@@ -11,7 +11,6 @@ import java.util.*
 
 class MockSurveyRepository : SurveyRepository {
 
-
     private val surveyList = mutableListOf<Survey>()
     private val answerList = mutableListOf<AnsweredSurveyCluster>()
 

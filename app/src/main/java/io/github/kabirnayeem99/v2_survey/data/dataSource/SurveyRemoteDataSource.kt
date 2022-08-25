@@ -3,6 +3,7 @@ package io.github.kabirnayeem99.v2_survey.data.dataSource
 import io.github.kabirnayeem99.v2_survey.data.dto.getSurvey.toSurveyList
 import io.github.kabirnayeem99.v2_survey.data.service.SurveyApiService
 import io.github.kabirnayeem99.v2_survey.domain.entity.Survey
+import java.util.*
 import javax.inject.Inject
 
 class SurveyRemoteDataSource @Inject constructor(private val apiService: SurveyApiService) {
@@ -13,7 +14,7 @@ class SurveyRemoteDataSource @Inject constructor(private val apiService: SurveyA
      * @return A list of Survey.
      */
     suspend fun getSurveyList(): List<Survey> {
-        val surveyList = apiService.getSurvey().body()!!.toSurveyList()
+        val surveyList = apiService.getSurvey(Date().time).body()!!.toSurveyList()
         if (surveyList.isEmpty()) throw Exception("Could not find any survey questions.")
         return surveyList
     }
