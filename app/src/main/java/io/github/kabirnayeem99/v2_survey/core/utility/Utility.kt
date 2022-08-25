@@ -88,7 +88,10 @@ fun Date.toFormattedDate(): String {
     return try {
         val pattern = "EEE, MMM dd, yyyy (hh:mm aaa)"
         val simpleDateFormat = SimpleDateFormat(pattern, Locale.getDefault())
-        simpleDateFormat.format(this)
+        simpleDateFormat.format(this).also {
+            Timber.d(this.time.toString())
+            Timber.d(it)
+        }
     } catch (e: Exception) {
         Timber.w(e, "Failed to convert long to date -> ${e.localizedMessage}")
         ""

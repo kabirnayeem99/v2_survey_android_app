@@ -21,6 +21,7 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.kabirnayeem99.v2_survey.R
 import io.github.kabirnayeem99.v2_survey.core.ktx.bounce
+import io.github.kabirnayeem99.v2_survey.core.ktx.goneOrVisible
 import io.github.kabirnayeem99.v2_survey.core.ktx.showUserMessage
 import io.github.kabirnayeem99.v2_survey.core.utility.convertContentUriToFile
 import io.github.kabirnayeem99.v2_survey.databinding.FragmentSurveyBinding
@@ -114,58 +115,20 @@ class SurveyFragment : Fragment() {
         }
     }
 
+    /**
+     * Manages the visibility of the views based on the type of survey.
+     *
+     * @param type The type of the survey.
+     */
     private fun manageVisibilityBasedOnType(type: SurveyType) {
         binding.apply {
-            when (type) {
-                SurveyType.CAMERA -> {
-                    ivCamera.visibility = View.VISIBLE
-                    spDropdown.visibility = View.INVISIBLE
-                    tietInput.visibility = View.INVISIBLE
-                    llCheckbox.visibility = View.INVISIBLE
-                    tietNumInput.visibility = View.INVISIBLE
-                    rgMultipleChoice.visibility = View.INVISIBLE
-                }
-                SurveyType.MULTIPLE_CHOICE -> {
-                    rgMultipleChoice.visibility = View.VISIBLE
-                    spDropdown.visibility = View.INVISIBLE
-                    tietInput.visibility = View.INVISIBLE
-                    ivCamera.visibility = View.INVISIBLE
-                    tietNumInput.visibility = View.INVISIBLE
-                    llCheckbox.visibility = View.INVISIBLE
-                }
-                SurveyType.DROP_DOWN -> {
-                    spDropdown.visibility = View.VISIBLE
-                    tietInput.visibility = View.INVISIBLE
-                    ivCamera.visibility = View.INVISIBLE
-                    tietNumInput.visibility = View.INVISIBLE
-                    llCheckbox.visibility = View.INVISIBLE
-                    rgMultipleChoice.visibility = View.INVISIBLE
-                }
-                SurveyType.TEXT_INPUT -> {
-                    tietInput.visibility = View.VISIBLE
-                    spDropdown.visibility = View.INVISIBLE
-                    ivCamera.visibility = View.INVISIBLE
-                    llCheckbox.visibility = View.INVISIBLE
-                    tietNumInput.visibility = View.INVISIBLE
-                    rgMultipleChoice.visibility = View.INVISIBLE
-                }
-                SurveyType.NUMBER_INPUT -> {
-                    tietNumInput.visibility = View.VISIBLE
-                    tietInput.visibility = View.INVISIBLE
-                    spDropdown.visibility = View.INVISIBLE
-                    ivCamera.visibility = View.INVISIBLE
-                    llCheckbox.visibility = View.INVISIBLE
-                    rgMultipleChoice.visibility = View.INVISIBLE
-                }
-                SurveyType.CHECKBOX -> {
-                    llCheckbox.visibility = View.VISIBLE
-                    tietNumInput.visibility = View.INVISIBLE
-                    tietInput.visibility = View.INVISIBLE
-                    spDropdown.visibility = View.INVISIBLE
-                    ivCamera.visibility = View.INVISIBLE
-                    rgMultipleChoice.visibility = View.INVISIBLE
-                }
-            }
+            ivCamera.goneOrVisible(type == SurveyType.CAMERA)
+            spDropdown.goneOrVisible(type == SurveyType.DROP_DOWN)
+            spDropdown.goneOrVisible(type == SurveyType.DROP_DOWN)
+            llCheckbox.goneOrVisible(type == SurveyType.CHECKBOX)
+            tietInput.goneOrVisible(type == SurveyType.TEXT_INPUT)
+            tietNumInput.goneOrVisible(type == SurveyType.NUMBER_INPUT)
+            rgMultipleChoice.goneOrVisible(type == SurveyType.MULTIPLE_CHOICE)
         }
     }
 
