@@ -1,7 +1,7 @@
 # V2 Survey App
 
 A simple survey app made with all the Modern Android Development tools (Flow, Jetpack ViewModel,
-Room, and Retrofit), and built with Modern Android App Architecture (MVVM + Uncle Bob's Clean Arch).
+Room, and Retrofit), and built with Modern Android App Architecture (MVVM + Uncle Bob's Clean Arch). It is also well-tested by Unit-tests.
 
 ## Features
 
@@ -11,6 +11,7 @@ Room, and Retrofit), and built with Modern Android App Architecture (MVVM + Uncl
 - Material Design 3 and auto dark and light mode.
 
 ## Demo
+
 <a href="https://ibb.co/Qbkc4BC"><img src="https://i.ibb.co/2nS6T2s/Screenshot-20220825-005210.png" alt="Screenshot-20220825-005210" border="0"></a>
 <a href="https://ibb.co/cyL5ggH"><img src="https://i.ibb.co/9ptX88L/Screenshot-20220825-005226.png" alt="Screenshot-20220825-005226" border="0"></a>
 <a href="https://ibb.co/pPScrw5"><img src="https://i.ibb.co/0XxTV2v/Screenshot-20220825-005308.png" alt="Screenshot-20220825-005308" border="0"></a>
@@ -20,14 +21,15 @@ Room, and Retrofit), and built with Modern Android App Architecture (MVVM + Uncl
 
 ## Tech Stack
 
-- Android SDK, for building app for android platform.
-- Kotlin Language
-- Kotlin Coroutines, for multithreading
-- Retrofit and GSON, to handle network request and network response.
-- Room, for saving data locally.
-- Dagger-Hilt, for dependency injection.
-- Timber, for better and improved logging.
-- Easy Permission, for handling permission.
+- **Android SDK**, for building app for android platform.
+- **Kotlin Language**
+- **Kotlin Coroutines**, for multithreading
+- **Retrofit and GSON**, to handle network request and network response.
+- **Room**, for saving data locally.
+- **Dagger-Hilt**, for dependency injection.
+- **Timber**, for better and improved logging.
+- **Easy Permission**, for handling permission.
+- **JUnit and MockK**, for unit testing.
 
 ## Run Locally
 
