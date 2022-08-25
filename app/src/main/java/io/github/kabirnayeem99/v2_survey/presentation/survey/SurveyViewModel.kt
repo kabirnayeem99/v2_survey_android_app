@@ -301,6 +301,7 @@ class SurveyViewModel @Inject constructor(
     fun makeUserMessage(messageText: String? = null, exception: Throwable? = null) {
 
         if (!messageText.isNullOrBlank()) {
+            Timber.i(messageText)
             viewModelScope.launch(Dispatchers.IO) {
                 _uiState.update {
                     val messages = it.userMessages + UserMessage(
@@ -313,6 +314,7 @@ class SurveyViewModel @Inject constructor(
         }
 
         if (exception != null) {
+            Timber.e(exception)
             viewModelScope.launch(Dispatchers.IO) {
                 _uiState.update {
                     val messages = it.userMessages + UserMessage(
