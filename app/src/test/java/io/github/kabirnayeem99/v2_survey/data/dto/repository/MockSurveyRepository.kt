@@ -43,6 +43,9 @@ class MockSurveyRepository : SurveyRepository {
 
     override suspend fun saveSurvey(id: Long, answers: List<AnsweredSurvey>): Result<Long> {
         AnsweredSurveyCluster(id = 0, time = Date(id), answeredSurveyList = answers)
+            .also {
+                answerList.add(it)
+            }
         return Result.success(id)
     }
 
