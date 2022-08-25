@@ -14,4 +14,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "V2_Survey"
-include ':app'
+include(":app")
+
