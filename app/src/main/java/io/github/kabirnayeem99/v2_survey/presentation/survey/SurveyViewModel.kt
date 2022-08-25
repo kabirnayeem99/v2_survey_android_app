@@ -236,7 +236,7 @@ class SurveyViewModel @Inject constructor(
     /**
      * Show loading for short period of time
      */
-    private suspend fun showLoadingForAShortPeriod(time: Long = 600L) {
+    private suspend fun showLoadingForAShortPeriod(time: Long = 400L) {
         startLoading()
         delay(time)
         stopLoading()
