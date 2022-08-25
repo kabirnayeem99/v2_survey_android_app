@@ -70,8 +70,8 @@ dependencies {
     val retrofitVersion = "2.9.0"
     implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
     implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
-    val gson_version = "2.9.1"
-    implementation("com.google.code.gson:gson:$gson_version")// gson for json serialisation
+    val gsonVersion = "2.9.1"
+    implementation("com.google.code.gson:gson:$gsonVersion")// gson for json serialisation
     implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.9")
 
     // easy_permission - for handling permission
