@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.kabirnayeem99.v2_survey.domain.entity.AnsweredSurvey
 import io.github.kabirnayeem99.v2_survey.domain.entity.Survey
+import io.github.kabirnayeem99.v2_survey.domain.entity.SurveyType
 import io.github.kabirnayeem99.v2_survey.domain.useCase.GetSurveyList
 import io.github.kabirnayeem99.v2_survey.domain.useCase.SaveSurveyList
 import io.github.kabirnayeem99.v2_survey.presentation.common.UserMessage
@@ -140,6 +141,8 @@ class SurveyViewModel @Inject constructor(
     fun answerQuestion(ans: Any) {
         answerQuestionJob?.cancel()
         answerQuestionJob = viewModelScope.launch(Dispatchers.IO) {
+            if (!validateAnswer(ans)) return@launch
+
             _uiState.update {
                 val currentList = it.answers.toMutableList()
 
@@ -159,6 +162,28 @@ class SurveyViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Checks if the answer is of the correct type for the question
+     *
+     * @param ans The answer to the question
+     * @return A boolean value
+     */
+    private fun validateAnswer(ans: Any): Boolean {
+        return try {
+            when (uiState.value.selectedSurvey.type) {
+                SurveyType.MULTIPLE_CHOICE -> ans is String
+                SurveyType.TEXT_INPUT -> ans is String
+                SurveyType.DROP_DOWN -> ans is String
+                SurveyType.CHECKBOX -> ans is List<*> || ans is Collection<*>
+                SurveyType.NUMBER_INPUT -> ans is Int || ans is Long || ans is String
+                SurveyType.CAMERA -> ans is File
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to validate answer")
+            false
+        }
+    }
+
     private var submitSurveyAnswersJob: Job? = null
 
     /**
@@ -166,8 +191,8 @@ class SurveyViewModel @Inject constructor(
      */
     fun submitSurveyAnswers() {
         submitSurveyAnswersJob?.cancel()
-        submitSurveyAnswersJob = viewModelScope.launch {
-            showLoadingForAShortPeriod(1200)
+        submitSurveyAnswersJob = viewModelScope.launch(Dispatchers.IO) {
+            showLoadingForAShortPeriod(600)
             saveSurveyList(Date().time, uiState.value.answers).fold(
                 onSuccess = { data ->
                     Timber.d(data.toString())

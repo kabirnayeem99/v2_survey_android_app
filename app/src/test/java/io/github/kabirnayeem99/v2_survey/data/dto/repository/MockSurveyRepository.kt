@@ -8,7 +8,6 @@ import io.github.kabirnayeem99.v2_survey.domain.repository.SurveyRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.util.*
-import kotlin.random.Random
 
 class MockSurveyRepository : SurveyRepository {
 
@@ -17,9 +16,8 @@ class MockSurveyRepository : SurveyRepository {
     private val answerList = mutableListOf<AnsweredSurveyCluster>()
 
     init {
-        for (index in 0..10) {
-            val typeIndex = Random.nextInt(SurveyType.values().size)
-            val type = SurveyType.values()[typeIndex]
+        for (index in 0 until SurveyType.values().size) {
+            val type = SurveyType.values()[index]
 
             Survey(
                 id = index,
@@ -44,7 +42,7 @@ class MockSurveyRepository : SurveyRepository {
     }
 
     override suspend fun saveSurvey(id: Long, answers: List<AnsweredSurvey>): Result<Long> {
-        val d = AnsweredSurveyCluster(id = 0, time = Date(id), answeredSurveyList = answers)
+        AnsweredSurveyCluster(id = 0, time = Date(id), answeredSurveyList = answers)
         return Result.success(id)
     }
 
