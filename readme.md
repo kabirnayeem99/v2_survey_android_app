@@ -2,7 +2,7 @@
 
 A simple survey app made with all the Modern Android Development tools (Flow, Jetpack ViewModel,
 Room, and Retrofit), and built with Modern Android App Architecture (MVVM + Uncle Bob's Clean Arch).
-It is also well-tested by Unit-tests.
+It is also well-tested by Unit-tests, and Instrumental tests.
 
 ## Features
 
@@ -31,6 +31,7 @@ It is also well-tested by Unit-tests.
 - **Timber**, for better and improved logging.
 - **Easy Permission**, for handling permission.
 - **JUnit and MockK**, for unit testing.
+- **Espresso**, for instrumental and UI testing.
 
 ## Run Locally
 
@@ -44,6 +45,18 @@ Go to the project directory
 
 ```bash
   cd v2_survey_android_app
+```
+
+To make sure everything is working, first run the unit tests. Invoke gradle test:
+
+```bash
+  gradlew test
+```
+
+And then invoke instrumental test:
+
+```bash
+  gradlew connectedAndroidTest
 ```
 
 To build a debug APK, open a command line and navigate to the root of your project directory. To
