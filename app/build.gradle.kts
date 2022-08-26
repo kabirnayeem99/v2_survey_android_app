@@ -15,7 +15,12 @@ android {
         versionCode = 2
         versionName = "1.0.1-alpha"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner =
+            "io.github.kabirnayeem99.v2_survey.core.base.SurveyAppTestRunner"
+    }
+
+    testOptions {
+        animationsDisabled = true
     }
 
     buildTypes {
@@ -39,6 +44,20 @@ android {
 
     buildFeatures {
         viewBinding = true
+    }
+
+    packagingOptions {
+        jniLibs.excludes.add("META-INF/DEPENDENCIES")
+        jniLibs.excludes.add("META-INF/LICENSE")
+        jniLibs.excludes.add("META-INF/LICENSE.txt")
+        jniLibs.excludes.add("META-INF/license.txt")
+        jniLibs.excludes.add("META-INF/NOTICE")
+        jniLibs.excludes.add("META-INF/NOTICE.txt")
+        jniLibs.excludes.add("META-INF/notice.txt")
+        jniLibs.excludes.add("META-INF/ASL2.0")
+        jniLibs.excludes.add("META-INF/LGPL2.1")
+        jniLibs.excludes.add("META-INF/AL2.0")
+        jniLibs.excludes.add("META-INF/*.kotlin_module")
     }
 
 }
@@ -92,8 +111,16 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
     testImplementation("org.mockito:mockito-inline:2.13.0")
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("com.google.dagger:hilt-android-testing:2.38.1")
+    kaptTest("com.google.dagger:hilt-android-compiler:2.38.1")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.38.1")
+    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.38.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("io.mockk:mockk-android:1.11.0")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+    debugImplementation("androidx.fragment:fragment-testing:1.5.2")
+    androidTestImplementation("androidx.navigation:navigation-testing:2.5.1")
 
 }
 
