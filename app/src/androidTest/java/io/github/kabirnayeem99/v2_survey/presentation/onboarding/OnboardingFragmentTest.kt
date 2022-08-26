@@ -33,32 +33,29 @@ class OnboardingFragmentTest {
 
     @Test
     fun does_btnHistory_has_on_click_listener() {
-        val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
 
         launchFragmentInHiltContainer<OnboardingFragment>(
-            navHostController = navController,
             action = {
-                navController.setGraph(R.navigation.nav_graph)
                 assert(
                     view?.findViewById<MaterialButton>(R.id.btn_history)
                         ?.hasOnClickListeners() == true
                 )
-            })
+            },
+        )
     }
 
     @Test
     fun does_btnAction_has_on_click_listener() {
-        val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
-        navController.setGraph(R.navigation.nav_graph)
+
 
         launchFragmentInHiltContainer<OnboardingFragment>(
-            navHostController = navController,
             action = {
                 assert(
                     view?.findViewById<MaterialButton>(R.id.btn_action)
                         ?.hasOnClickListeners() == true
                 )
-            })
+            },
+        )
     }
 
     @Test
@@ -76,7 +73,8 @@ class OnboardingFragmentTest {
                         assert(navController.currentDestination!!.id == R.id.previousSurveyFragment)
                     }
                 }
-            })
+            },
+        )
     }
 
     @Test
@@ -94,7 +92,8 @@ class OnboardingFragmentTest {
                         assert(navController.currentDestination!!.id == R.id.surveyFragment)
                     }
                 }
-            })
+            },
+        )
     }
 
 }
