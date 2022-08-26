@@ -88,7 +88,6 @@ class SurveyViewModelTest {
             delay(500)
             assert(viewModel.uiState.value.answers.size == 1)
 
-
             //    TEXT_INPUT
             viewModel.answerQuestion("Answer 1")
             delay(500)
@@ -163,7 +162,7 @@ class SurveyViewModelTest {
             viewModel.loadNextSurvey()
             delay(500)
 
-            //    CAMERA
+            //  CAMERA
             viewModel.answerQuestion(File(""))
             delay(500)
             viewModel.loadNextSurvey()
