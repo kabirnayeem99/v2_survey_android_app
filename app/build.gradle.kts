@@ -74,8 +74,9 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
     // navigation
-    implementation("androidx.navigation:navigation-fragment-ktx:2.5.1")
-    implementation("androidx.navigation:navigation-ui-ktx:2.5.1")
+    val navVersion = "2.5.1"
+    implementation("androidx.navigation:navigation-fragment-ktx:$navVersion")
+    implementation("androidx.navigation:navigation-ui-ktx:$navVersion")
 
     // timber - for better logging
     implementation("com.jakewharton.timber:timber:5.0.1")
@@ -111,16 +112,16 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
     testImplementation("org.mockito:mockito-inline:2.13.0")
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("com.google.dagger:hilt-android-testing:2.38.1")
-    kaptTest("com.google.dagger:hilt-android-compiler:2.38.1")
+    testImplementation("com.google.dagger:hilt-android-testing:$hiltVersion")
+    kaptTest("com.google.dagger:hilt-android-compiler:$hiltVersion")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("com.google.dagger:hilt-android-testing:2.38.1")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:$hiltVersion")
     kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.38.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
     androidTestImplementation("io.mockk:mockk-android:1.11.0")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
     debugImplementation("androidx.fragment:fragment-testing:1.5.2")
-    androidTestImplementation("androidx.navigation:navigation-testing:2.5.1")
+    androidTestImplementation("androidx.navigation:navigation-testing:$navVersion")
 
 }
 
