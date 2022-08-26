@@ -72,6 +72,7 @@ dependencies {
     // layout
     implementation("com.google.android.material:material:1.7.0-beta01")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    androidTestImplementation(project(mapOf("path" to ":app")))
 
     // navigation
     val navVersion = "2.5.1"
@@ -116,13 +117,14 @@ dependencies {
     kaptTest("com.google.dagger:hilt-android-compiler:$hiltVersion")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("com.google.dagger:hilt-android-testing:$hiltVersion")
-    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.38.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    kaptAndroidTest("com.google.dagger:hilt-android-compiler:$hiltVersion")
     androidTestImplementation("io.mockk:mockk-android:1.11.0")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
     debugImplementation("androidx.fragment:fragment-testing:1.5.2")
     androidTestImplementation("androidx.navigation:navigation-testing:$navVersion")
-
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.test:runner:1.4.0")
+    androidTestImplementation("androidx.test:rules:1.4.0")
 }
 
 

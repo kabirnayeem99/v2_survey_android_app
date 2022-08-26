@@ -23,6 +23,8 @@ import org.junit.runner.RunWith
 @SmallTest
 class OnboardingFragmentTest {
 
+
+
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
